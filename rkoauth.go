@@ -51,13 +51,20 @@ func ObtainBearerToken(code string) {
 }
 
 func CheckForBearerToken() string {
-	stat, _ := os.Stat(".bearer_token")
+	stat, _ := os.Stat(".rk_bearer_token")
 	var bearerToken string
 	if stat != nil {
-		file, _ := os.Open(".bearer_token")
+		file, _ := os.Open(".rk_bearer_token")
 		fileContents, _ := ioutil.ReadAll(file)
 		file.Close()
 		bearerToken = strings.TrimSpace(string(fileContents))
 	}
 	return bearerToken
+}
+
+func LaunchOAuth() {
+	fmt.Print("No bearer token found, going through the OAuth process.\n")
+	http.HandleFunc("/code", OAuthCallbackServerHelloServer)
+	go http.ListenAndServe(":4444", nil)
+	OpenBrowser()
 }
