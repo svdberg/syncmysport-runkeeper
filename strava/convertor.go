@@ -5,6 +5,10 @@ import (
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
-func convertToActivity(stravaActivity *stravalib.ActivityDetailed) *dm.Activity {
-	return nil
+func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed) *dm.Activity {
+	stvActivity := dm.Activity{}
+	stvActivity.StartTime = int(stravaActivity.StartDate.Unix())
+	stvActivity.Duration = stravaActivity.ElapsedTime
+	stvActivity.Name = stravaActivity.Name
+	return &stvActivity
 }

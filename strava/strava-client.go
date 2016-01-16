@@ -1,8 +1,11 @@
 package strava
 
 import (
+	"fmt"
 	stravalib "github.com/strava/go.strava"
 )
+
+type StravaDetailed stravalib.ActivityDetailed
 
 func GetSTVActivitiesSince(bearerToken string, timestamp int) ([]*stravalib.ActivitySummary, error) {
 	client := stravalib.NewClient(bearerToken)
@@ -18,4 +21,8 @@ func GetSTVDetailedActivity(bearerToken string, activityId int64) (*stravalib.Ac
 	service := stravalib.NewActivitiesService(client)
 	call := service.Get(activityId)
 	return call.Do()
+}
+
+func (da StravaDetailed) String() string {
+	return fmt.Sprintf("{Id: %d, Name: '%s'}", da.Id, da.Name)
 }

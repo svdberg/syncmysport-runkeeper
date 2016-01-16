@@ -1,6 +1,7 @@
 package main
 
 import (
+	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"log"
@@ -26,7 +27,13 @@ func getSTVActivities() {
 	}
 	log.Println("Getting activities")
 	activities, _ := stv.GetSTVActivitiesSince(token, timestamp)
-	log.Println(activities)
+	detailedActivities := make([]*dm.Activity, len(activities))
+	for i := range activities {
+		actSummary := activities[i]
+		detailedAct, _ := stv.GetSTVDetailedActivity(token, actSummary.Id)
+		detailedActivities[i] = stv.ConvertToActivity(detailedAct)
+	}
+	log.Println(detailedActivities)
 }
 
 func getRkActivities() {
