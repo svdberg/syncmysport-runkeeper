@@ -1,4 +1,4 @@
-package main
+package runkeeper
 
 import (
 	"encoding/json"

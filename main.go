@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"runkeeper/runkeeper"
+	"strava/strava"
 	"time"
 )
 

@@ -1,4 +1,4 @@
-package main
+package runkeeper
 
 import (
 	runkeeper "github.com/c9s/go-runkeeper"
