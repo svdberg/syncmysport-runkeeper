@@ -1,6 +1,8 @@
 package main
 
 import (
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"log"
 	"time"
 )
@@ -8,37 +10,36 @@ import (
 const timestamp = 1452384000
 
 func main() {
-	//	getRkActivities()
+	getRkActivities()
 	getSTVActivities()
 }
 
 func getSTVActivities() {
-	token := CheckForStvBearerToken()
+	token := stv.CheckForStvBearerToken()
 	if token == "" {
-		StartStvOAuth()
+		stv.StartStvOAuth()
 
 		for token == "" {
 			time.Sleep(500000000)
-			log.Println("MEH")
-			token = CheckForStvBearerToken()
+			token = stv.CheckForStvBearerToken()
 		}
 	}
 	log.Println("Getting activities")
-	activities, _ := GetSTVActivitiesSince(token, timestamp)
+	activities, _ := stv.GetSTVActivitiesSince(token, timestamp)
 	log.Println(activities)
 }
 
 func getRkActivities() {
-	bearerToken := CheckForBearerToken()
+	bearerToken := rk.CheckForBearerToken()
 	if bearerToken == "" {
-		LaunchOAuth()
+		rk.LaunchOAuth()
 		for bearerToken == "" {
 			time.Sleep(500000000)
-			bearerToken = CheckForBearerToken()
+			bearerToken = rk.CheckForBearerToken()
 		}
 	}
 
-	activities, err := GetRKActivitiesSince(bearerToken, timestamp)
+	activities, err := rk.GetRKActivitiesSince(bearerToken, timestamp)
 	if err != nil {
 		log.Fatal(err)
 	}

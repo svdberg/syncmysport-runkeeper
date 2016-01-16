@@ -1,9 +1,10 @@
-package main
+package runkeeper
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,6 +15,7 @@ const (
 	RedirectUri  = "http://localhost:4444/code"
 	ClientId     = "73664cff18ed4800aab6cffc7ef8f4e1"
 	ClientSecret = "76f5b6465f3b4c5f8aec9a29574d787d"
+	tokenfile    = "rk_bearer_token"
 )
 
 func OpenBrowser() {
@@ -42,7 +44,7 @@ func ObtainBearerToken(code string) {
 	if err == nil {
 		responseBody, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(responseBody, &responseJson)
-		file, _ := os.Create(".bearer_token")
+		file, _ := os.Create(tokenfile)
 		file.WriteString(responseJson["access_token"])
 		file.Close()
 	} else {
@@ -51,10 +53,11 @@ func ObtainBearerToken(code string) {
 }
 
 func CheckForBearerToken() string {
-	stat, _ := os.Stat(".rk_bearer_token")
+	stat, _ := os.Stat(tokenfile)
 	var bearerToken string
 	if stat != nil {
-		file, _ := os.Open(".rk_bearer_token")
+		log.Println("found RK token")
+		file, _ := os.Open(tokenfile)
 		fileContents, _ := ioutil.ReadAll(file)
 		file.Close()
 		bearerToken = strings.TrimSpace(string(fileContents))
