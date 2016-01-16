@@ -15,7 +15,7 @@ const (
 	RedirectUri  = "http://localhost:4444/code"
 	ClientId     = "73664cff18ed4800aab6cffc7ef8f4e1"
 	ClientSecret = "76f5b6465f3b4c5f8aec9a29574d787d"
-	tokenfile    = "rk_bearer_token"
+	tokenfile    = ".rk_bearer_token"
 )
 
 func OpenBrowser() {

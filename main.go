@@ -4,8 +4,6 @@ import (
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"log"
-	"runkeeper/runkeeper"
-	"strava/strava"
 	"time"
 )
 
