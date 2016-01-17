@@ -29,7 +29,7 @@ func TestConvertor(t *testing.T) {
 	fmt.Printf("%s\n", resultActivity)
 
 	//this compare probably doesnt work as expected
-	if *activity != resultActivity {
+	if !activity.ConsideredEqual(&resultActivity) {
 		t.Error("activity should match resultActivity")
 	}
 }
