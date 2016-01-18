@@ -11,6 +11,10 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.Duration = stravaActivity.ElapsedTime
 	stvActivity.Name = stravaActivity.Name
 
+	if stravaActivity.Type.String() == "Run" {
+		stvActivity.Type = "Running"
+	}
+
 	stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream)
 	stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
 	return &stvActivity

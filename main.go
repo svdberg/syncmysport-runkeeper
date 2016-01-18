@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
@@ -43,6 +44,19 @@ func getSTVActivities() {
 		detailedActivities[i] = stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream)
 	}
 	log.Println(detailedActivities)
+
+	//try to write the last activity to RK
+	log.Println("Writing last strava activity to RK")
+	lastActivity := detailedActivities[len(detailedActivities)-1]
+	lastActivity.Name = fmt.Sprintf("%s-%s", lastActivity.Name, "-SANDERTEST")
+	log.Printf("Writing '%s' to RK", lastActivity)
+	rkBearerToken := rk.CheckForBearerToken()
+	rkActivity := rk.ConvertToRkActivity(lastActivity)
+	uri, err := rk.PostActivity(rkActivity, rkBearerToken)
+	if err != nil {
+		log.Fatal("Error while creating RK Activity: %s", err)
+	}
+	log.Printf("URI of new activity: %s", uri)
 }
 
 func getRkActivities() {
