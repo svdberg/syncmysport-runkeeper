@@ -46,8 +46,36 @@ type GPS struct {
 	Latitude  float64
 }
 
+func takeFirstNOrMaxHr(sl []HeartRate, n int) []HeartRate {
+	if len(sl) <= n {
+		return sl
+	} else {
+		if n >= 0 {
+			return sl[:n]
+		} else {
+			empty := make([]HeartRate, 0)
+			return empty
+		}
+	}
+}
+
+func takeFirstNOrMax(sl []GPS, n int) []GPS {
+	if len(sl) <= n {
+		return sl
+	} else {
+		if n >= 0 {
+			return sl[:n]
+		} else {
+			empty := make([]GPS, 0)
+			return empty
+		}
+	}
+}
+
 func (a Activity) String() string {
-	return fmt.Sprintf("%s %s", time.Unix(int64(a.StartTime), 0).Format("02-01-2006 15:04 MST"), a.Name)
+	gpsSubSel := fmt.Sprintf("%v...", takeFirstNOrMax(a.GPS, 5))
+	hrSubSel := fmt.Sprintf("%v...", takeFirstNOrMaxHr(a.HeartRate, 5))
+	return fmt.Sprintf("Activity: %s, time: %s,  GPS: %s, HR: %s", a.Name, time.Unix(int64(a.StartTime), 0).Format("02-01-2006 15:04 MST"), gpsSubSel, hrSubSel)
 }
 
 func (a Activity) ConsideredEqual(otherActivity *Activity) bool {

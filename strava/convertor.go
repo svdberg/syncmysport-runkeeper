@@ -5,7 +5,7 @@ import (
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
-func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.IntegerStream, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
+func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
 	stvActivity := dm.Activity{}
 	stvActivity.StartTime = int(stravaActivity.StartDate.Unix())
 	stvActivity.Duration = stravaActivity.ElapsedTime
@@ -16,12 +16,12 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	return &stvActivity
 }
 
-func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.IntegerStream) []dm.GPS {
-	if sourceStream.Location == nil {
+func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.GPS {
+	if sourceStream.Location == nil || timeStream.Time == nil {
 		return make([]dm.GPS, 0)
 	}
 	//merge the time stream + the location stream
-	merged := mergeTimeAndLocation(timeStream, sourceStream.Location)
+	merged := mergeTimeAndLocation(timeStream.Time, sourceStream.Location)
 
 	result := make([]dm.GPS, len(sourceStream.Location.Data))
 	for index, gpsTime := range merged {
@@ -46,13 +46,13 @@ func mergeTimeAndLocation(timeStream *stravalib.IntegerStream, locStream *strava
 	return merged
 }
 
-func convertHeartRateTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.IntegerStream) []dm.HeartRate {
-	if sourceStream.HeartRate == nil {
+func convertHeartRateTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.HeartRate {
+	if sourceStream.HeartRate == nil || timeStream.Time == nil {
 		return make([]dm.HeartRate, 0)
 	}
 	result := make([]dm.HeartRate, len(sourceStream.HeartRate.Data))
 	for index, hr := range sourceStream.HeartRate.Data {
-		time := timeStream.Data[index]
+		time := timeStream.Time.Data[index]
 		result[index] = dm.HeartRate{float64(time), hr}
 	}
 	return result

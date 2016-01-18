@@ -30,8 +30,17 @@ func getSTVActivities() {
 	detailedActivities := make([]*dm.Activity, len(activities))
 	for i := range activities {
 		actSummary := activities[i]
+		//get Detailed Actv
 		detailedAct, _ := stv.GetSTVDetailedActivity(token, actSummary.Id)
-		detailedActivities[i] = stv.ConvertToActivity(detailedAct)
+		//get associated Streams
+		timeStream, err := stv.GetSTVActivityStream(token, actSummary.Id, "Time")
+		if err != nil {
+			log.Fatal("Error while retrieving time series from Strava: %s", err)
+		}
+		locStream, _ := stv.GetSTVActivityStream(token, actSummary.Id, "GPS")
+		hrStream, _ := stv.GetSTVActivityStream(token, actSummary.Id, "Heartrate")
+
+		detailedActivities[i] = stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream)
 	}
 	log.Println(detailedActivities)
 }

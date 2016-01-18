@@ -3,6 +3,7 @@ package strava
 import (
 	"fmt"
 	stravalib "github.com/strava/go.strava"
+	"log"
 )
 
 type StravaDetailed stravalib.ActivityDetailed
@@ -31,8 +32,11 @@ func GetSTVActivityStream(bearerToken string, activityId int64, streamType strin
 		types = append(types, stravalib.StreamTypes.Location)
 	} else if streamType == "Heartrate" {
 		types = append(types, stravalib.StreamTypes.HeartRate)
+	} else if streamType == "Time" {
+		types = append(types, stravalib.StreamTypes.Time)
 	}
-	return service.Get(activityId, types).Resolution("10000").SeriesType("distance").Do()
+	log.Printf("Length of types: %d, with %s", len(types), types)
+	return service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
 }
 
 func (da StravaDetailed) String() string {

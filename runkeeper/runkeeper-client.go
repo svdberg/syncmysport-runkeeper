@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func PostActivity(activity *runkeeper.FitnessActivity, bearerToken string) {
+func PostActivity(activity *runkeeper.FitnessActivityNew, bearerToken string) {
 	client := runkeeper.NewClient(bearerToken)
 	client.PostNewFitnessActivity(activity)
 }
