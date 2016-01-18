@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+//time delta in seconds for Activities to be considered the same
 const delta = float64(100)
 
 type Activity struct {
@@ -20,9 +21,29 @@ type Activity struct {
 	Notes      string
 	Private    bool
 	Stationary bool
-	//GPS = gps
+	GPS        []GPS
+	HeartRate  []HeartRate
 	//PrerenderedFormats = {}
 	//Device = device
+}
+
+type HeartRate struct {
+	Timestamp float64
+	Heartrate int
+}
+
+/*
+ 			"timestamp": 0,
+      "altitude": 0,
+      "longitude": -70.95182336425782,
+      "latitude": 42.312620297384676,
+      "type": "start"
+*/
+type GPS struct {
+	Timestamp float64
+	Altitude  float64
+	Longitude float64
+	Latitude  float64
 }
 
 func (a Activity) String() string {

@@ -23,6 +23,18 @@ func GetSTVDetailedActivity(bearerToken string, activityId int64) (*stravalib.Ac
 	return call.Do()
 }
 
+func GetSTVActivityStream(bearerToken string, activityId int64, streamType string) (*stravalib.StreamSet, error) {
+	client := stravalib.NewClient(bearerToken)
+	service := stravalib.NewActivityStreamsService(client)
+	var types = make([]stravalib.StreamType, 1)
+	if streamType == "GPS" {
+		types = append(types, stravalib.StreamTypes.Location)
+	} else if streamType == "Heartrate" {
+		types = append(types, stravalib.StreamTypes.HeartRate)
+	}
+	return service.Get(activityId, types).Resolution("10000").SeriesType("distance").Do()
+}
+
 func (da StravaDetailed) String() string {
 	return fmt.Sprintf("{Id: %d, Name: '%s'}", da.Id, da.Name)
 }

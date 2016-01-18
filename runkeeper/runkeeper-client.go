@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-//func PostActivity(activity *Activity, bearerToken string) {
-//	client := runkeeper.NewClient(bearerToken)
-//	client.
-//}
+func PostActivity(activity *runkeeper.FitnessActivity, bearerToken string) {
+	client := runkeeper.NewClient(bearerToken)
+	client.PostNewFitnessActivity(activity)
+}
 
 func GetRKActivitiesSince(bearerToken string, timestamp int) (*runkeeper.FitnessActivityFeed, error) {
 	//int to timestamp

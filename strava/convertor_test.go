@@ -22,8 +22,8 @@ func TestConvertor(t *testing.T) {
 	stvActivity.Description = notes
 	stvActivity.Type = stravalib.ActivityTypes.Run
 
-	activity := ConvertToActivity(&stvActivity)
-	resultActivity := dm.Activity{int(theTime.Unix()), duration, theType, name, notes, false, false}
+	activity := ConvertToActivity(&stvActivity, nil, nil)
+	resultActivity := dm.Activity{int(theTime.Unix()), duration, theType, name, notes, false, false, nil, nil}
 
 	fmt.Printf("%s\n", activity)
 	fmt.Printf("%s\n", resultActivity)
@@ -32,4 +32,7 @@ func TestConvertor(t *testing.T) {
 	if !activity.ConsideredEqual(&resultActivity) {
 		t.Error("activity should match resultActivity")
 	}
+}
+
+func TestGPSStreamConvertor(t *testing.T) {
 }
