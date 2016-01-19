@@ -15,8 +15,12 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		stvActivity.Type = "Running"
 	}
 
-	stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream)
-	stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
+	if gpsTrack != nil && timeStream != nil {
+		stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream)
+	}
+	if hrTrack != nil && timeStream != nil {
+		stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
+	}
 	return &stvActivity
 }
 
@@ -30,7 +34,7 @@ func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.St
 	result := make([]dm.GPS, len(sourceStream.Location.Data))
 	for index, gpsTime := range merged {
 		alt := 0.0
-		result[index] = dm.GPS{float64(gpsTime.Time), alt, gpsTime.Lat, gpsTime.Long}
+		result[index] = dm.GPS{float64(gpsTime.Time), alt, gpsTime.Long, gpsTime.Lat}
 	}
 	return result
 }

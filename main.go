@@ -29,8 +29,7 @@ func getSTVActivities() {
 	log.Println("Getting activities")
 	activities, _ := stv.GetSTVActivitiesSince(token, timestamp)
 	detailedActivities := make([]*dm.Activity, len(activities))
-	for i := range activities {
-		actSummary := activities[i]
+	for i, actSummary := range activities {
 		//get Detailed Actv
 		detailedAct, _ := stv.GetSTVDetailedActivity(token, actSummary.Id)
 		//get associated Streams

@@ -40,5 +40,9 @@ func convertToPath(gps []dm.GPS) []runkeeper.Path {
 }
 
 func convertToHR(hr []dm.HeartRate) []runkeeper.HeartRate {
-	return make([]runkeeper.HeartRate, 0)
+	rkHr := make([]runkeeper.HeartRate, len(hr))
+	for i, h := range hr {
+		rkHr[i] = runkeeper.HeartRate{h.Timestamp, h.Heartrate}
+	}
+	return rkHr
 }

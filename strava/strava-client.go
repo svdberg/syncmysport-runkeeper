@@ -4,6 +4,7 @@ import (
 	"fmt"
 	stravalib "github.com/strava/go.strava"
 	"log"
+	"strings"
 )
 
 type StravaDetailed stravalib.ActivityDetailed
@@ -36,7 +37,14 @@ func GetSTVActivityStream(bearerToken string, activityId int64, streamType strin
 		types = append(types, stravalib.StreamTypes.Time)
 	}
 	log.Printf("Length of types: %d, with %s", len(types), types)
-	return service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
+	stream, err := service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
+	if err != nil && strings.Contains(err.Error(), "Record Not Found") {
+		return nil, nil
+	} else if err == nil {
+		return stream, nil
+	} else {
+		return nil, err
+	}
 }
 
 func (da StravaDetailed) String() string {
