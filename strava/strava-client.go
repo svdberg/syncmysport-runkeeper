@@ -9,25 +9,32 @@ import (
 
 type StravaDetailed stravalib.ActivityDetailed
 
-func GetSTVActivitiesSince(bearerToken string, timestamp int) ([]*stravalib.ActivitySummary, error) {
-	client := stravalib.NewClient(bearerToken)
-	service := stravalib.NewCurrentAthleteService(client)
+type StravaClient struct {
+	BearerToken string
+	Client      *stravalib.Client
+}
+
+func CreateStravaClient(token string) *StravaClient {
+	client := stravalib.NewClient(token)
+	return &StravaClient{token, client}
+}
+
+func (c StravaClient) GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error) {
+	service := stravalib.NewCurrentAthleteService(c.Client)
 	call := service.ListActivities()
 	call.After(timestamp)
 	activities, err := call.Do()
 	return activities, err
 }
 
-func GetSTVDetailedActivity(bearerToken string, activityId int64) (*stravalib.ActivityDetailed, error) {
-	client := stravalib.NewClient(bearerToken)
-	service := stravalib.NewActivitiesService(client)
+func (c StravaClient) GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error) {
+	service := stravalib.NewActivitiesService(c.Client)
 	call := service.Get(activityId)
 	return call.Do()
 }
 
-func GetSTVActivityStream(bearerToken string, activityId int64, streamType string) (*stravalib.StreamSet, error) {
-	client := stravalib.NewClient(bearerToken)
-	service := stravalib.NewActivityStreamsService(client)
+func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error) {
+	service := stravalib.NewActivityStreamsService(c.Client)
 	var types = make([]stravalib.StreamType, 1)
 	if streamType == "GPS" {
 		types = append(types, stravalib.StreamTypes.Location)

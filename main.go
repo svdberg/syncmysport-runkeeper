@@ -27,18 +27,19 @@ func getSTVActivities() {
 		}
 	}
 	log.Println("Getting activities")
-	activities, _ := stv.GetSTVActivitiesSince(token, timestamp)
+	stvClient := stv.CreateStravaClient(token)
+	activities, _ := stvClient.GetSTVActivitiesSince(timestamp)
 	detailedActivities := make([]*dm.Activity, len(activities))
 	for i, actSummary := range activities {
 		//get Detailed Actv
-		detailedAct, _ := stv.GetSTVDetailedActivity(token, actSummary.Id)
+		detailedAct, _ := stvClient.GetSTVDetailedActivity(actSummary.Id)
 		//get associated Streams
-		timeStream, err := stv.GetSTVActivityStream(token, actSummary.Id, "Time")
+		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
 		if err != nil {
 			log.Fatal("Error while retrieving time series from Strava: %s", err)
 		}
-		locStream, _ := stv.GetSTVActivityStream(token, actSummary.Id, "GPS")
-		hrStream, _ := stv.GetSTVActivityStream(token, actSummary.Id, "Heartrate")
+		locStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "GPS")
+		hrStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
 
 		detailedActivities[i] = stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream)
 	}
@@ -51,7 +52,8 @@ func getSTVActivities() {
 	log.Printf("Writing '%s' to RK", lastActivity)
 	rkBearerToken := rk.CheckForBearerToken()
 	rkActivity := rk.ConvertToRkActivity(lastActivity)
-	uri, err := rk.PostActivity(rkActivity, rkBearerToken)
+	rkClient := rk.CreateRKClient(rkBearerToken)
+	uri, err := rkClient.PostActivity(rkActivity)
 	if err != nil {
 		log.Fatal("Error while creating RK Activity: %s", err)
 	}
@@ -68,7 +70,8 @@ func getRkActivities() {
 		}
 	}
 
-	activities, err := rk.GetRKActivitiesSince(bearerToken, timestamp)
+	rkClient := rk.CreateRKClient(bearerToken)
+	activities, err := rkClient.GetRKActivitiesSince(timestamp)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -5,12 +5,21 @@ import (
 	"time"
 )
 
-func PostActivity(activity *runkeeper.FitnessActivityNew, bearerToken string) (string, error) {
-	client := runkeeper.NewClient(bearerToken)
-	return client.PostNewFitnessActivity(activity)
+type RkClient struct {
+	BearerToken string
+	Client      *runkeeper.Client
 }
 
-func GetRKActivitiesSince(bearerToken string, timestamp int) (*runkeeper.FitnessActivityFeed, error) {
+func CreateRKClient(token string) *RkClient {
+	client := runkeeper.NewClient(token)
+	return &RkClient{token, client}
+}
+
+func (c RkClient) PostActivity(activity *runkeeper.FitnessActivityNew) (string, error) {
+	return c.Client.PostNewFitnessActivity(activity)
+}
+
+func (c RkClient) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error) {
 	//int to timestamp
 	var ts int64
 	ts = int64(timestamp)
@@ -18,6 +27,5 @@ func GetRKActivitiesSince(bearerToken string, timestamp int) (*runkeeper.Fitness
 	var params runkeeper.Params
 	params = make(map[string]interface{})
 	params["noEarlierThan"] = tm.Format("2006-01-02")
-	client := runkeeper.NewClient(bearerToken)
-	return client.GetFitnessActivityFeed(&params)
+	return c.Client.GetFitnessActivityFeed(&params)
 }
