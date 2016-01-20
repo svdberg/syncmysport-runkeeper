@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
+const API = "API"
+
 func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
-	returnActivity := dm.Activity{}
+	returnActivity := dm.CreateActivity()
 	returnActivity.Type = rkActivity.Type
 	returnActivity.StartTime = int(time.Time(rkActivity.StartTime).Unix())
 	returnActivity.Duration = int(rkActivity.Duration)
@@ -15,8 +17,11 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity.Notes = rkActivity.Comment //hmm dunno
 	returnActivity.Private = false
 	returnActivity.Stationary = rkActivity.HasMap
+	returnActivity.AverageHeartRate = 0 //rkActivity.AverageHeartRate
+	returnActivity.Calories = rkActivity.TotalCalories
+	returnActivity.Distance = rkActivity.TotalDistance
 
-	return &returnActivity
+	return returnActivity
 }
 
 func ConvertToRkActivity(activity *dm.Activity) *runkeeper.FitnessActivityNew {
@@ -25,6 +30,11 @@ func ConvertToRkActivity(activity *dm.Activity) *runkeeper.FitnessActivityNew {
 	rkActivity.Type = activity.Type
 	rkActivity.StartTime = runkeeper.Time(time.Unix(int64(activity.StartTime), 0))
 	rkActivity.Notes = activity.Name
+	rkActivity.TotalDistance = activity.Distance
+	rkActivity.AverageHeartRate = activity.AverageHeartRate
+	rkActivity.TotalCalories = activity.Calories
+	rkActivity.Source = activity.Source
+	rkActivity.EntryMode = API
 
 	rkActivity.Path = convertToPath(activity.GPS)
 	rkActivity.HeartRate = convertToHR(activity.HeartRate)

@@ -8,11 +8,15 @@ import (
 
 //time delta in seconds for Activities to be considered the same
 const delta = float64(100)
+const Source = "SyncMySport"
 
 type Activity struct {
-	StartTime int    `json:"start_time"`
-	Duration  int    `json:"duration"`
-	Type      string `json:"type"`
+	StartTime        int     `json:"start_time"`
+	Duration         int     `json:"duration"`
+	Distance         float64 `json:"distance"`
+	Type             string  `json:"type"`
+	Calories         float64 `json:"calories"`
+	AverageHeartRate int     `json:"average_heartrate"`
 	//Laps = lapList if lapList is not None else []
 	//Stats = ActivityStatistics(distance=distance)
 	//TZ = tz
@@ -23,6 +27,7 @@ type Activity struct {
 	Stationary bool
 	GPS        []GPS
 	HeartRate  []HeartRate
+	Source     string `json:"source"`
 	//PrerenderedFormats = {}
 	//Device = device
 }
@@ -70,6 +75,14 @@ func takeFirstNOrMax(sl []GPS, n int) []GPS {
 			return empty
 		}
 	}
+}
+
+func CreateActivity() *Activity {
+	activity := Activity{}
+	activity.GPS = make([]GPS, 0)
+	activity.HeartRate = make([]HeartRate, 0)
+	activity.Source = Source
+	return &activity
 }
 
 func (a Activity) String() string {

@@ -6,28 +6,28 @@ import (
 )
 
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
-	stvActivity := dm.Activity{}
+	stvActivity := dm.CreateActivity()
 	stvActivity.StartTime = int(stravaActivity.StartDate.Unix())
 	stvActivity.Duration = stravaActivity.ElapsedTime
 	stvActivity.Name = stravaActivity.Name
+	stvActivity.Calories = stravaActivity.Calories
+	stvActivity.Distance = stravaActivity.Distance
+	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
 
 	if stravaActivity.Type.String() == "Run" {
 		stvActivity.Type = "Running"
 	}
 
-	if gpsTrack != nil && timeStream != nil {
+	if gpsTrack != nil && gpsTrack.Location != nil && timeStream != nil {
 		stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream)
 	}
-	if hrTrack != nil && timeStream != nil {
+	if hrTrack != nil && hrTrack.HeartRate != nil && timeStream != nil {
 		stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
 	}
-	return &stvActivity
+	return stvActivity
 }
 
 func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.GPS {
-	if sourceStream.Location == nil || timeStream.Time == nil {
-		return make([]dm.GPS, 0)
-	}
 	//merge the time stream + the location stream
 	merged := mergeTimeAndLocation(timeStream.Time, sourceStream.Location)
 
@@ -55,9 +55,6 @@ func mergeTimeAndLocation(timeStream *stravalib.IntegerStream, locStream *strava
 }
 
 func convertHeartRateTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.HeartRate {
-	if sourceStream.HeartRate == nil || timeStream.Time == nil {
-		return make([]dm.HeartRate, 0)
-	}
 	result := make([]dm.HeartRate, len(sourceStream.HeartRate.Data))
 	for index, hr := range sourceStream.HeartRate.Data {
 		time := timeStream.Time.Data[index]
