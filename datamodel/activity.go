@@ -10,6 +10,67 @@ import (
 const delta = float64(100)
 const Source = "SyncMySport"
 
+type ActivitySet struct {
+	slice []Activity
+}
+
+//functions for set
+func (set *ActivitySet) Add(p Activity) {
+	if !set.Contains(p) {
+		set.slice = append(set.slice, p)
+	}
+}
+
+func (p1 Activity) Equals(p2 Activity) bool {
+	return (p1.Name == p2.Name) && (p1.StartTime == p2.StartTime)
+}
+
+func (set ActivitySet) Contains(p Activity) bool {
+	for _, v := range set.slice {
+		if v.Equals(p) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set ActivitySet) ApproxContains(p Activity) bool {
+	for _, v := range set.slice {
+		if v.ConsideredEqual(&p) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set ActivitySet) Subtract(other ActivitySet) *ActivitySet {
+	difference := NewActivitySet()
+	for _, elem := range set.slice {
+		if !other.Contains(elem) {
+			difference.Add(elem)
+		}
+	}
+	return &difference
+}
+
+func (set ActivitySet) ApproxSubtract(other ActivitySet) *ActivitySet {
+	difference := NewActivitySet()
+	for _, elem := range set.slice {
+		if !other.ApproxContains(elem) {
+			difference.Add(elem)
+		}
+	}
+	return &difference
+}
+
+func (set ActivitySet) NumElements() int {
+	return len(set.slice)
+}
+
+func NewActivitySet() ActivitySet {
+	return ActivitySet{(make([]Activity, 0, 10))}
+}
+
 type Activity struct {
 	StartTime        int     `json:"start_time"`
 	Duration         int     `json:"duration"`

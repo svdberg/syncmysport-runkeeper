@@ -26,5 +26,7 @@ _testmain.go
 .bearer_token
 .stv_bearer_token
 .rk_bearer_token
+.rk_app_secret
+.stv_app_secret
 
 syncmysport-runkeeper

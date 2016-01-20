@@ -13,6 +13,7 @@ import (
 
 const port = 8080 // port of local demo server
 const tokenfile = ".stv_bearer_token"
+const secret = ".stv_app_secret"
 
 var authenticator *strava.OAuthAuthenticator
 
@@ -28,9 +29,21 @@ func CheckForStvBearerToken() string {
 	return bearerToken
 }
 
+func loadSecret() string {
+	stat, _ := os.Stat(secret)
+	var secret string
+	if stat != nil {
+		file, _ := os.Open(secret)
+		fileContents, _ := ioutil.ReadAll(file)
+		file.Close()
+		secret = strings.TrimSpace(string(fileContents))
+	}
+	return secret
+}
+
 func StartStvOAuth() {
 	strava.ClientId = 9667
-	strava.ClientSecret = "95d9a55f35d5f1e7ef97b31ccf977e8efd44c821"
+	strava.ClientSecret = loadSecret()
 
 	// define a strava.OAuthAuthenticator to hold state.
 	// The callback url is used to generate an AuthorizationURL.

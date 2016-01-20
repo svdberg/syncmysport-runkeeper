@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	RedirectUri  = "http://localhost:4444/code"
-	ClientId     = "73664cff18ed4800aab6cffc7ef8f4e1"
-	ClientSecret = "76f5b6465f3b4c5f8aec9a29574d787d"
-	tokenfile    = ".rk_bearer_token"
+	RedirectUri = "http://localhost:4444/code"
+	ClientId    = "73664cff18ed4800aab6cffc7ef8f4e1"
+	tokenfile   = ".rk_bearer_token"
+	secret      = ".rk_app_secret"
 )
 
 func OpenBrowser() {
@@ -30,13 +30,25 @@ func OAuthCallbackServerHelloServer(w http.ResponseWriter, req *http.Request) {
 	w.Write([]uint8("Called Back!\n"))
 }
 
+func loadSecret() string {
+	stat, _ := os.Stat(secret)
+	var secret string
+	if stat != nil {
+		file, _ := os.Open(secret)
+		fileContents, _ := ioutil.ReadAll(file)
+		file.Close()
+		secret = strings.TrimSpace(string(fileContents))
+	}
+	return secret
+}
+
 func ObtainBearerToken(code string) {
 	tokenUrl := "https://runkeeper.com/apps/token"
 	formData := make(map[string][]string)
 	formData["grant_type"] = []string{"authorization_code"}
 	formData["code"] = []string{code}
 	formData["client_id"] = []string{ClientId}
-	formData["client_secret"] = []string{ClientSecret}
+	formData["client_secret"] = []string{loadSecret()}
 	formData["redirect_uri"] = []string{RedirectUri}
 	client := new(http.Client)
 	response, err := client.PostForm(tokenUrl, formData)
