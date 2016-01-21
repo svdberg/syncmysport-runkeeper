@@ -21,6 +21,10 @@ func (set *ActivitySet) Add(p Activity) {
 	}
 }
 
+func (s *ActivitySet) Get(index int) *Activity {
+	return &s.slice[index]
+}
+
 func (p1 Activity) Equals(p2 Activity) bool {
 	return (p1.Name == p2.Name) && (p1.StartTime == p2.StartTime)
 }

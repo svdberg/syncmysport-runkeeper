@@ -5,6 +5,7 @@ import (
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
+	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"log"
 	"time"
 )
@@ -12,8 +13,35 @@ import (
 const timestamp = 1452384000
 
 func main() {
-	getRkActivities()
-	getSTVActivities()
+	stvToken := GetStravaToken()
+	rkToken := GetRkToken()
+	syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
+	syncer.Sync()
+}
+
+func GetStravaToken() string {
+	token := stv.CheckForStvBearerToken()
+	if token == "" {
+		stv.StartStvOAuth()
+
+		for token == "" {
+			time.Sleep(500000000)
+			token = stv.CheckForStvBearerToken()
+		}
+	}
+	return token
+}
+
+func GetRkToken() string {
+	bearerToken := rk.CheckForBearerToken()
+	if bearerToken == "" {
+		rk.LaunchOAuth()
+		for bearerToken == "" {
+			time.Sleep(500000000)
+			bearerToken = rk.CheckForBearerToken()
+		}
+	}
+	return bearerToken
 }
 
 func getSTVActivities() {
