@@ -3,6 +3,7 @@ package runkeeper
 import (
 	runkeeper "github.com/c9s/go-runkeeper"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
+	//"log"
 	"time"
 )
 
@@ -11,16 +12,18 @@ const API = "API"
 func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity := dm.CreateActivity()
 	returnActivity.Type = rkActivity.Type
-	returnActivity.StartTime = int(time.Time(rkActivity.StartTime).Unix())
+	correctedTime := time.Time(rkActivity.StartTime).Add(time.Duration(rkActivity.UtcOffset) * time.Hour)
+	returnActivity.StartTime = int(correctedTime.Unix())
 	returnActivity.Duration = int(rkActivity.Duration)
-	returnActivity.Name = rkActivity.Comment
-	returnActivity.Notes = rkActivity.Comment //hmm dunno
+	returnActivity.Name = rkActivity.Notes
+	returnActivity.Notes = "" //rkActivity.Comment //hmm dunno
 	returnActivity.Private = false
 	returnActivity.Stationary = rkActivity.HasMap
 	returnActivity.AverageHeartRate = 0 //rkActivity.AverageHeartRate
 	returnActivity.Calories = rkActivity.TotalCalories
 	returnActivity.Distance = rkActivity.TotalDistance
 
+	//log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
 	return returnActivity
 }
 

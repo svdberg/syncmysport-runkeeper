@@ -15,6 +15,7 @@ const timestamp = 1452384000
 func main() {
 	stvToken := GetStravaToken()
 	rkToken := GetRkToken()
+	getRkActivities()
 	syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
 	syncer.Sync()
 }

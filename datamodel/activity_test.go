@@ -109,7 +109,7 @@ func TestString(t *testing.T) {
 	activity.StartTime = int(now.Unix())
 
 	res := fmt.Sprintf("%s", activity)
-	if res != fmt.Sprintf("Activity: test-act, time: %s,  GPS: []..., HR: []...", nowString) {
-		t.Error(fmt.Sprintf("%s is not equal to \"Activity: test-act, time: %s,  GPS: []..., HR: []...\"", res, nowString))
+	if res != fmt.Sprintf("Activity: test-act, start-time: %s,  end-time: %s, duration: %s, GPS: []..., HR: []...", nowString) {
+		t.Error(fmt.Sprintf("%s is not equal to \"Activity: test-act, start-time: %s,  end-time: %s, duration: %s, GPS: []..., HR: []...\"", res, nowString))
 	}
 }

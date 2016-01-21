@@ -45,26 +45,35 @@ func (st SyncTask) Sync() {
 		stvDetailedActivities.Add(*stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream))
 	}
 	log.Printf("Got %d items from Strava", stvDetailedActivities.NumElements())
+	for i := 0; i < stvDetailedActivities.NumElements(); i++ {
+		log.Printf("Strava Activity: %s", stvDetailedActivities.Get(i))
+	}
 
 	//get activities from runkeeper
 	rkClient := rk.CreateRKClient(st.RunkeeperToken)
-	rkDetailActivities, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
+	rkActivitiesOverview, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
+	rkDetailActivities := rkClient.EnrichRKActivities(rkActivitiesOverview)
+	//log.Printf("rk detail activities: %s", rkDetailActivities)
+
 	rkActivities := dm.NewActivitySet()
-	for _, item := range rkDetailActivities.Items {
+	for _, item := range rkDetailActivities {
 		rkActivities.Add(*rk.ConvertToActivity(&item))
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("Got %d items from RunKeeper", rkActivities.NumElements())
+	for i := 0; i < rkActivities.NumElements(); i++ {
+		log.Printf("Runkeeper Activity: %s", rkActivities.Get(i))
+	}
 
 	//caclulate difference
-	itemsToSyncToRk := rkActivities.ApproxSubtract(stvDetailedActivities)
+	itemsToSyncToRk := stvDetailedActivities.ApproxSubtract(rkActivities)
 	log.Printf("Difference between Runkeeper and Strava is %d items", itemsToSyncToRk.NumElements())
 
 	//write to runkeeper
 	for i := 0; i < itemsToSyncToRk.NumElements(); i++ {
 		log.Printf("Now storing item %s to RunKeeper", itemsToSyncToRk.Get(i))
-		rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
+		//rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
 	}
 }

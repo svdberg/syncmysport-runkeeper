@@ -19,6 +19,21 @@ func (c RkClient) PostActivity(activity *runkeeper.FitnessActivityNew) (string, 
 	return c.Client.PostNewFitnessActivity(activity)
 }
 
+func (c RkClient) EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error) {
+	var params runkeeper.Params
+	params = make(map[string]interface{})
+	return c.Client.GetFitnessActivity(activitySummary.Uri, &params)
+}
+
+func (c RkClient) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity {
+	result := make([]runkeeper.FitnessActivity, activities.Size)
+	for i, act := range activities.Items {
+		a, _ := c.EnrichRKActivity(&act)
+		result[i] = *a
+	}
+	return result
+}
+
 func (c RkClient) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error) {
 	//int to timestamp
 	var ts int64
