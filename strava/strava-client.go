@@ -3,7 +3,7 @@ package strava
 import (
 	"fmt"
 	stravalib "github.com/strava/go.strava"
-	"log"
+	//"log"
 	"strings"
 )
 
@@ -43,7 +43,6 @@ func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) 
 	} else if streamType == "Time" {
 		types = append(types, stravalib.StreamTypes.Time)
 	}
-	log.Printf("Length of types: %d, with %s", len(types), types)
 	stream, err := service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
 	if err != nil && strings.Contains(err.Error(), "Record Not Found") {
 		return nil, nil

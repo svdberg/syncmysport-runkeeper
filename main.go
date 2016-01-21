@@ -15,7 +15,8 @@ const timestamp = 1452384000
 func main() {
 	stvToken := GetStravaToken()
 	rkToken := GetRkToken()
-	getRkActivities()
+	//getRkActivities()
+	//getSTVActivities()
 	syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
 	syncer.Sync()
 }
@@ -62,6 +63,7 @@ func getSTVActivities() {
 	for i, actSummary := range activities {
 		//get Detailed Actv
 		detailedAct, _ := stvClient.GetSTVDetailedActivity(actSummary.Id)
+		log.Printf("Detailed STV Act: %s in TZ: %s", detailedAct, detailedAct.TimeZone)
 		//get associated Streams
 		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
 		if err != nil {

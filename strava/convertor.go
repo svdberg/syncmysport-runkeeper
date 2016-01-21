@@ -3,11 +3,14 @@ package strava
 import (
 	stravalib "github.com/strava/go.strava"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
+	"log"
 )
 
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
 	stvActivity := dm.CreateActivity()
-	stvActivity.StartTime = int(stravaActivity.StartDate.Unix())
+	stvActivity.StartTime = int(stravaActivity.StartDate.Unix()) //UTC date
+	//stvActivity.StartTime = int(stravaActivity.StartDateLocal.Unix()) //UTC +1 Date (local)
+	log.Printf("STV Local date: %s, start date: %s, unix: %d", stravaActivity.StartDateLocal, stravaActivity.StartDate, stravaActivity.StartDate.Unix())
 	stvActivity.Duration = stravaActivity.ElapsedTime
 	stvActivity.Name = stravaActivity.Name
 	stvActivity.Calories = stravaActivity.Calories
@@ -16,6 +19,10 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 
 	if stravaActivity.Type.String() == "Run" {
 		stvActivity.Type = "Running"
+	} else if stravaActivity.Type.String() == "Ride" {
+		stvActivity.Type = "Cycling"
+	} else if stravaActivity.Type.String() == "Swim" {
+		stvActivity.Type = "Swimming"
 	}
 
 	if gpsTrack != nil && gpsTrack.Location != nil && timeStream != nil {

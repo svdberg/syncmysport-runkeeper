@@ -3,7 +3,7 @@ package runkeeper
 import (
 	runkeeper "github.com/c9s/go-runkeeper"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
-	//"log"
+	"log"
 	"time"
 )
 
@@ -12,7 +12,10 @@ const API = "API"
 func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity := dm.CreateActivity()
 	returnActivity.Type = rkActivity.Type
+
+	//RK time is 'Local'
 	correctedTime := time.Time(rkActivity.StartTime).Add(time.Duration(rkActivity.UtcOffset) * time.Hour)
+	log.Printf("RK Local date: %s, start date: %s, unix: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix())
 	returnActivity.StartTime = int(correctedTime.Unix())
 	returnActivity.Duration = int(rkActivity.Duration)
 	returnActivity.Name = rkActivity.Notes

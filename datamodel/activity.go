@@ -162,5 +162,5 @@ func (a Activity) String() string {
 func (a Activity) ConsideredEqual(otherActivity *Activity) bool {
 	startDelta := math.Abs(float64(a.StartTime - otherActivity.StartTime))
 	endDelta := math.Abs(float64((a.StartTime + otherActivity.Duration) - (otherActivity.StartTime + otherActivity.Duration)))
-	return startDelta < delta && endDelta < delta
+	return startDelta < delta && endDelta < delta && a.Type == otherActivity.Type
 }
