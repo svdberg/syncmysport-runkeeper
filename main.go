@@ -14,10 +14,15 @@ const timestamp = 1452384000
 
 func main() {
 	stvToken := GetStravaToken()
-	rkToken := GetRkToken()
+	//rkToken := GetRkToken()
 	//getRkActivities()
 	//getSTVActivities()
-	syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
+	//syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
+	repo := sync.CreateSyncDbRepo()
+	syncer, err := repo.RetrieveSyncTaskByToken(stvToken)
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
 	syncer.Sync()
 }
 

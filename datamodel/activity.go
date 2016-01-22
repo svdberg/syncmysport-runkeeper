@@ -79,7 +79,7 @@ type Activity struct {
 	StartTime        int     `json:"start_time"`
 	Duration         int     `json:"duration"`
 	Distance         float64 `json:"distance"`
-	Type             string  `json:"type"`
+	Type             string  `json:"type"` //"Running", "Cycling", "Swimming"
 	Calories         float64 `json:"calories"`
 	AverageHeartRate int     `json:"average_heartrate"`
 	//Laps = lapList if lapList is not None else []

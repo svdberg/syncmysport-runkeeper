@@ -20,10 +20,11 @@ type SyncTask struct {
 	StravaToken       string
 	RunkeeperToken    string
 	LastSeenTimestamp int
+	uid               int64
 }
 
 func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int) *SyncTask {
-	return &SyncTask{stvToken, rkToken, lastSeenTS}
+	return &SyncTask{stvToken, rkToken, lastSeenTS, -1}
 }
 
 func (st SyncTask) Sync() {
