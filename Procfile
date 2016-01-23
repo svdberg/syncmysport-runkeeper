@@ -1,1 +1,1 @@
-web: ./syncmysport-runkeeper
+web: syncmysport-runkeeper
