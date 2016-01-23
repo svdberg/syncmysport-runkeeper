@@ -5,6 +5,8 @@ import (
 	api "github.com/svdberg/syncmysport-runkeeper/api"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"log"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -18,16 +20,34 @@ var (
 )
 
 func main() {
+	//Load config vars
+	var err error
+	portString := os.Getenv("PORT")
+
+	if portString == "" {
+		log.Fatal("$PORT must be set")
+	}
+	port, nerr := strconv.Atoi(portString)
+	if nerr != nil {
+		log.Print("Error converting $PORT to an int: %q - Using default", err)
+		port = 8100
+	}
+	dbUrl := os.Getenv("CLEARDB_DATABASE_URL")
+	DbConnectionString = dbUrl
+
 	//Start Scheduler
+	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s", port, DbConnectionString)
+	log.Print("Starting SyncTask Scheduler")
 	c := cron.New()
-	err := c.AddFunc("0 5/15 * * *", startSync) //every 15 minutes, starting 5 in
+	err = c.AddFunc("0 5/15 * * *", startSync) //every 15 minutes, starting 5 in
 	if err != nil {
 		log.Fatal("Error adding the job to the scheduler", err)
 	}
 	c.Start()
 
 	//Start api
-	api.Start(DbConnectionString)
+	log.Print("Launching REST API")
+	api.Start(DbConnectionString, port)
 }
 
 /*

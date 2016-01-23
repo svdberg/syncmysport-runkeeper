@@ -3,6 +3,7 @@ package sync
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
 	"time"
@@ -17,7 +18,8 @@ type DbSync struct {
 
 func CreateSyncDbRepo(dbString string) *DbSync {
 	if dbString != "" {
-		return &DbSync{dbString}
+		appendedConnectionString := fmt.Sprintf("%s,parseTime=true", dbString)
+		return &DbSync{appendedConnectionString}
 	} else {
 		return &DbSync{default_connection_string}
 	}

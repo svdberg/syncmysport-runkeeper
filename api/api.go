@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
 	"io/ioutil"
@@ -16,11 +17,12 @@ var (
 	DbConnectionString string
 )
 
-func Start(connString string) {
+func Start(connString string, port int) {
 	DbConnectionString = connString
+	portString := fmt.Sprintf(":%d", port)
 	router := NewRouter()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
-	log.Fatal(http.ListenAndServe(":8100", router))
+	log.Fatal(http.ListenAndServe(portString, router))
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
