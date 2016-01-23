@@ -154,7 +154,7 @@ func (a Activity) String() string {
 	gpsSubSel := fmt.Sprintf("%v...", takeFirstNOrMax(a.GPS, 5))
 	hrSubSel := fmt.Sprintf("%v...", takeFirstNOrMaxHr(a.HeartRate, 5))
 	endTime := time.Unix(int64(a.StartTime), 0).Add(time.Duration(a.Duration) * time.Second)
-	return fmt.Sprintf("Activity: %s, start-time: %s,  end-time: %s, duration: %s, GPS: %s, HR: %s", a.Name,
+	return fmt.Sprintf("Activity: %s, Type: %s, start-time: %s,  end-time: %s, duration: %s, GPS: %s, HR: %s", a.Name, a.Type,
 		time.Unix(int64(a.StartTime), 0).Format("02-01-2006 15:04 MST"), endTime.Format("02-01-2006 15:04 MST"),
 		time.Duration(a.Duration)*time.Second, gpsSubSel, hrSubSel)
 }

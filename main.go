@@ -11,19 +11,31 @@ import (
 )
 
 const timestamp = 1452384000
+const tsDelta = -5 //minutes
 
 func main() {
-	stvToken := GetStravaToken()
-	//rkToken := GetRkToken()
-	//getRkActivities()
-	//getSTVActivities()
-	//syncer := sync.CreateSyncTask(rkToken, stvToken, timestamp)
 	repo := sync.CreateSyncDbRepo()
-	syncer, err := repo.RetrieveSyncTaskByToken(stvToken)
+	allSyncs, err := repo.RetrieveAllSyncTasks()
+	log.Printf("Retrieved %d sync tasks", len(allSyncs))
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	syncer.Sync()
+	for _, syncer := range allSyncs {
+		log.Printf("Now syncing for task: %s, %s, %s", syncer.StravaToken, syncer.RunkeeperToken, time.Unix(int64(syncer.LastSeenTimestamp), 0))
+		difference, nrItemsCreated := syncer.Sync()
+		log.Printf("Nr of Activities missing in RunKeeper: %d, Actvities created: %d", difference, nrItemsCreated)
+		if difference == nrItemsCreated {
+			log.Print("Updating last seen timestamp")
+			//subtract 5 minutes to prevent activites being missed
+			syncer.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())
+			rowsUpdated, err := repo.UpdateSyncTask(syncer)
+			if err != nil || rowsUpdated != 1 {
+				log.Fatal("Error updating the SyncTask record with a new timestamp")
+			}
+		} else {
+			log.Print("Something went wrong storing Activities, not updating timestamp so we will retry")
+		}
+	}
 }
 
 func GetStravaToken() string {

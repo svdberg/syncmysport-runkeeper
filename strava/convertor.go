@@ -19,7 +19,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 
 	if stravaActivity.Type.String() == "Run" {
 		stvActivity.Type = "Running"
-	} else if stravaActivity.Type.String() == "Ride" {
+	} else if stravaActivity.Type.String() == "Ride" || stravaActivity.Type.String() == "EBikeRide" {
 		stvActivity.Type = "Cycling"
 	} else if stravaActivity.Type.String() == "Swim" {
 		stvActivity.Type = "Swimming"
