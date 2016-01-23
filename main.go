@@ -10,6 +10,13 @@ import (
 
 const tsDelta = -5 //minutes
 
+//CONFIG
+var (
+	DbConnectionString string
+	//RkSecret           string //needed for oauth
+	//StvSecret          string //needed for oauth only
+)
+
 func main() {
 	//Start Scheduler
 	c := cron.New()
@@ -20,7 +27,7 @@ func main() {
 	c.Start()
 
 	//Start api
-	api.Start()
+	api.Start(DbConnectionString)
 }
 
 /*
@@ -32,7 +39,7 @@ func main() {
  * - update timestamp for record
  */
 func startSync() {
-	repo := sync.CreateSyncDbRepo()
+	repo := sync.CreateSyncDbRepo(DbConnectionString)
 	allSyncs, err := repo.RetrieveAllSyncTasks()
 	log.Printf("Retrieved %d sync tasks", len(allSyncs))
 	if err != nil {

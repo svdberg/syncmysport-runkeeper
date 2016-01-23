@@ -9,20 +9,25 @@ import (
 )
 
 //should come from config (file) somewhere...
-const connection_string = "root:root123@/syncmysport?charset=utf8,parseTime=true"
+const default_connection_string = "root:root123@/syncmysport?charset=utf8,parseTime=true"
 
 type DbSync struct {
+	ConnectionString string
 }
 
-func CreateSyncDbRepo() *DbSync {
-	return &DbSync{}
+func CreateSyncDbRepo(dbString string) *DbSync {
+	if dbString != "" {
+		return &DbSync{dbString}
+	} else {
+		return &DbSync{default_connection_string}
+	}
 }
 
 func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 	if sync.Uid == -1 {
 		return 0, errors.New("SyncTask was never stored before, use StoreSyncTask")
 	}
-	dbCon, _ := sql.Open("mysql", connection_string)
+	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
 	stmtOut, err := dbCon.Prepare("UPDATE sync SET rk_key=?, stv_key=?, last_succesfull_retrieve=? WHERE uid = ?")
@@ -46,7 +51,7 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 * Returns 1) Created Id, 2) Rows changed/added, 3)synctask, 4) error
  */
 func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
-	dbCon, _ := sql.Open("mysql", connection_string)
+	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
 	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve) VALUES(?,?,?)")
@@ -71,7 +76,7 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 }
 
 func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
-	dbCon, _ := sql.Open("mysql", connection_string)
+	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	stmtOut, err := dbCon.Prepare("SELECT * FROM sync")
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
@@ -102,7 +107,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 }
 
 func (db DbSync) RetrieveSyncTaskByToken(token string) (*SyncTask, error) {
-	dbCon, _ := sql.Open("mysql", connection_string)
+	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key = ? OR stv_key = ?")
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app

@@ -12,7 +12,12 @@ import (
 
 const startTime = -1 * time.Duration(1) * time.Hour * 24 * 365 //1 year ago
 
-func Start() {
+var (
+	DbConnectionString string
+)
+
+func Start(connString string) {
+	DbConnectionString = connString
 	router := NewRouter()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
 	log.Fatal(http.ListenAndServe(":8100", router))
@@ -43,7 +48,7 @@ func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
 
 	//Creation set the last know timestamp to 1 year ago
 	syncTask.LastSeenTimestamp = int(time.Now().Add(startTime).Unix())
-	db := sync.CreateSyncDbRepo()
+	db := sync.CreateSyncDbRepo(DbConnectionString)
 	_, _, st, _ := db.StoreSyncTask(*syncTask)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
