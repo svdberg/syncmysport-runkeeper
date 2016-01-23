@@ -19,7 +19,7 @@ func CreateSyncDbRepo() *DbSync {
 }
 
 func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
-	if sync.uid == -1 {
+	if sync.Uid == -1 {
 		return 0, errors.New("SyncTask was never stored before, use StoreSyncTask")
 	}
 	dbCon, _ := sql.Open("mysql", connection_string)
@@ -30,7 +30,7 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 	defer stmtOut.Close()
-	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.uid)
+	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sync.uid = lastId
+	sync.Uid = lastId
 	return lastId, rowCnt, sync, nil
 }
 
@@ -95,7 +95,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 		}
 
 		sync := CreateSyncTask(rkToken, stvToken, unixTime)
-		sync.uid = uid
+		sync.Uid = uid
 		result = append(result, *sync)
 	}
 	return result, nil
@@ -126,7 +126,7 @@ func (db DbSync) RetrieveSyncTaskByToken(token string) (*SyncTask, error) {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
 		task := CreateSyncTask(rkToken, stvToken, unixTime)
-		task.uid = uid
+		task.Uid = uid
 		return task, nil
 	}
 	return nil, nil
