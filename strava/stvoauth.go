@@ -3,7 +3,7 @@ package strava
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/strava/go.strava"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	"io/ioutil"
 	"net/http"
 	"os"

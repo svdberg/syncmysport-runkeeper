@@ -2,7 +2,7 @@ package strava
 
 import (
 	"fmt"
-	stravalib "github.com/strava/go.strava"
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	//"log"
 	"strings"
 )

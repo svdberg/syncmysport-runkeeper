@@ -1,0 +1,35 @@
+{
+	"ImportPath": "github.com/svdberg/syncmysport-runkeeper",
+	"GoVersion": "go1.4",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/c9s/go-runkeeper",
+			"Rev": "f1602ad761d8add1c10fd3661ae3398ae37f09b0"
+		},
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-154-gacb04ff",
+			"Rev": "acb04ffadecc7aecbbdcac969063d05ad017ab71"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
+		},
+		{
+			"ImportPath": "github.com/robfig/cron",
+			"Comment": "v1-7-g32d9c27",
+			"Rev": "32d9c273155a0506d27cf73dd1246e86a470997e"
+		},
+		{
+			"ImportPath": "github.com/strava/go.strava",
+			"Rev": "c001695047a53b67ed2916d5162cd75a85df96cc"
+		}
+	]
+}

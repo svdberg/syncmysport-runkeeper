@@ -1,7 +1,7 @@
 package main
 
 import (
-	cron "github.com/robfig/cron"
+	cron "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/robfig/cron"
 	api "github.com/svdberg/syncmysport-runkeeper/api"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"log"

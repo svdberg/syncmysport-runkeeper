@@ -3,7 +3,7 @@ package sync
 import (
 	"database/sql"
 	"errors"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
 	"time"
 )

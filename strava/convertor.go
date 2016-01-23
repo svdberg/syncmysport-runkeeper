@@ -1,7 +1,7 @@
 package strava
 
 import (
-	stravalib "github.com/strava/go.strava"
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"log"
 )
