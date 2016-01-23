@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	cron "github.com/robfig/cron"
+	api "github.com/svdberg/syncmysport-runkeeper/api"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
@@ -14,6 +16,19 @@ const timestamp = 1452384000
 const tsDelta = -5 //minutes
 
 func main() {
+	//Start Scheduler
+	c := cron.New()
+	err := c.AddFunc("0 5/15 * * *", startSync) //every 15 minutes, starting 5 in
+	if err != nil {
+		log.Fatal("Error adding the job to the scheduler", err)
+	}
+	c.Start()
+
+	//Start api
+	api.Start()
+}
+
+func startSync() {
 	repo := sync.CreateSyncDbRepo()
 	allSyncs, err := repo.RetrieveAllSyncTasks()
 	log.Printf("Retrieved %d sync tasks", len(allSyncs))
