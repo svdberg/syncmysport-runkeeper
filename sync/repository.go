@@ -42,7 +42,10 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 	return int(i), nil
 }
 
-func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, error) {
+/*
+* Returns 1) Created Id, 2) Rows changed/added, 3)synctask, 4) error
+ */
+func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", connection_string)
 	defer dbCon.Close()
 
@@ -63,7 +66,8 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return lastId, rowCnt, nil
+	sync.uid = lastId
+	return lastId, rowCnt, sync, nil
 }
 
 func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
