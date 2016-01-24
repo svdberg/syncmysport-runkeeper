@@ -150,7 +150,8 @@ func MakeDbStringHerokuCompliant(dbString string) string {
 	addr := strings.Split(parts[1], "/")[0]
 	dbName := strings.Split(strings.Split(parts[1], "/")[1], "?")[0]
 
-	resultString := fmt.Sprintf("mysql://%s:%s@tcp(%s:3306)/%s?reconnect=true", userAndPassword[0], userAndPassword[1], addr, dbName)
+	//resultString := fmt.Sprintf("mysql://%s:%s@tcp(%s:3306)/%s?reconnect=true", userAndPassword[0], userAndPassword[1], addr, dbName)
+	resultString := fmt.Sprintf("mysql://%s:%s@tcp(%s)/%s?reconnect=true", userAndPassword[0], userAndPassword[1], addr, dbName)
 	return resultString
 }
 
