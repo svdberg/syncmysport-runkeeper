@@ -19,10 +19,13 @@ func TestFromRKConvertor(t *testing.T) {
 	rkActivity.HasMap = true
 	rkActivity.Uri = "/activities/40"
 
-	resultActivity := dm.Activity{int(tim.Unix()), 10, "Running", "", "", false, false}
+	expectedActivity := dm.CreateActivity()
+	expectedActivity.StartTime = int(tim.Unix())
+	expectedActivity.Duration = 10
+	expectedActivity.Type = "Running"
 	activity := ConvertToActivity(&rkActivity)
 
-	if !activity.ConsideredEqual(&resultActivity) {
+	if !activity.ConsideredEqual(expectedActivity) {
 		t.Error(fmt.Sprintf("activity %s should match result activity", activity))
 	}
 }

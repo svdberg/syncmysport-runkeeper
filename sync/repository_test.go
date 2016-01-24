@@ -6,8 +6,8 @@ import (
 )
 
 func TestMakeDbStringHerokuCompliant(t *testing.T) {
-	herokuDbString := "mysql://b932b77e43b903:83f50752@eu-cdbr-west-01.cleardb.com/heroku_e6b0083a037c2d6?reconnect=true"
-	expectedResult := "mysql://b932b77e43b903:83f50752@tcp(eu-cdbr-west-01.cleardb.com:3306)/heroku_e6b0083a037c2d6?reconnect=true"
+	herokuDbString := "mysql://b932bxxx43b903:83f507xx@eu-cdbr-west-01.cleardb.com/heroku_e6b0xx3a037c2d6?reconnect=true"
+	expectedResult := "b932bxxx43b903:83f507xx@tcp(eu-cdbr-west-01.cleardb.com:3306)/heroku_e6b0xx3a037c2d6"
 
 	result := MakeDbStringHerokuCompliant(herokuDbString)
 	fmt.Printf("result: %s", result)

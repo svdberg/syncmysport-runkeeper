@@ -9,9 +9,10 @@ import (
 )
 
 func TestConvertor(t *testing.T) {
+	//expected
 	theTime, _ := time.Parse("Mon Jan 2 15:04:05 -0700 MST 2006", "Mon Jan 2 15:04:05 -0700 MST 2006")
 	duration := 10000
-	theType := "Run"
+	theType := "Running"
 	name := "Test Activity"
 	notes := "Some Random\n Bullshit"
 
@@ -22,14 +23,18 @@ func TestConvertor(t *testing.T) {
 	stvActivity.Description = notes
 	stvActivity.Type = stravalib.ActivityTypes.Run
 
-	activity := ConvertToActivity(&stvActivity, nil, nil)
-	resultActivity := dm.Activity{int(theTime.Unix()), duration, theType, name, notes, false, false, nil, nil}
+	activity := ConvertToActivity(&stvActivity, nil, nil, nil)
+	resultActivity := dm.CreateActivity()
+	resultActivity.StartTime = int(theTime.Unix())
+	resultActivity.Duration = duration
+	resultActivity.Type = theType
+	resultActivity.Name = name
 
 	fmt.Printf("%s\n", activity)
 	fmt.Printf("%s\n", resultActivity)
 
 	//this compare probably doesnt work as expected
-	if !activity.ConsideredEqual(&resultActivity) {
+	if !activity.ConsideredEqual(resultActivity) {
 		t.Error("activity should match resultActivity")
 	}
 }

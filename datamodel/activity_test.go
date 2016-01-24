@@ -104,12 +104,18 @@ func TestSetDifference(t *testing.T) {
 func TestString(t *testing.T) {
 	now := time.Now()
 	nowString := now.Format("02-01-2006 15:04 MST")
-	activity := Activity{}
+	activity := CreateActivity()
 	activity.Name = "test-act"
 	activity.StartTime = int(now.Unix())
+	activity.Type = "Running"
+	activity.Duration = 10
+	endString := now.Add(time.Duration(10) * time.Second).Format("02-01-2006 15:04 MST")
+
+	expectedFormatString := "Activity: test-act, Type: Running, start-time: %s,  end-time: %s, duration: %ds, GPS: []..., HR: []..."
+	expectedString := fmt.Sprintf(expectedFormatString, nowString, endString, 10)
 
 	res := fmt.Sprintf("%s", activity)
-	if res != fmt.Sprintf("Activity: test-act, start-time: %s,  end-time: %s, duration: %s, GPS: []..., HR: []...", nowString) {
-		t.Error(fmt.Sprintf("%s is not equal to \"Activity: test-act, start-time: %s,  end-time: %s, duration: %s, GPS: []..., HR: []...\"", res, nowString))
+	if res != expectedString {
+		t.Error(fmt.Sprintf("%s is not equal to \"%s\"", res, expectedString))
 	}
 }
