@@ -12,4 +12,6 @@ TODO
 - Proper resilence, error handling
 - Swimming activities apprently use a different duration, and therefore fail to be recognized as the same Activity
 - OAUth web interface + cookie storing of uid if already exists
+- Bootstap to make it pretty
+- Patch the freakin TZ troubles in the c9s runkeeper lib
 
