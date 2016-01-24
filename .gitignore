@@ -29,4 +29,5 @@ _testmain.go
 .rk_app_secret
 .stv_app_secret
 
+connectToDb.sh
 syncmysport-runkeeper
