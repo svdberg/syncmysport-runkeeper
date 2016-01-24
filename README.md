@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/svdberg/syncmysport-runkeeper.svg?branch=master)](https://travis-ci.org/svdberg/syncmysport-runkeeper)
+
 From Strava to Runkeeper
 ========================
 
