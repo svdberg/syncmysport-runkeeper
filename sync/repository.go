@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type DbSync struct {
 
 func CreateSyncDbRepo(dbString string) *DbSync {
 	if dbString != "" {
+		dbString = MakeDbStringHerokuCompliant(dbString)
 		appendedConnectionString := fmt.Sprintf("%s,parseTime=true", dbString)
 		return &DbSync{appendedConnectionString}
 	} else {
@@ -137,6 +139,18 @@ func (db DbSync) RetrieveSyncTaskByToken(token string) (*SyncTask, error) {
 		return task, nil
 	}
 	return nil, nil
+}
+
+func MakeDbStringHerokuCompliant(dbString string) string {
+	dbStringWithoutProtocol := strings.Replace(dbString, "mysql://", "", 1)
+	parts := strings.Split(dbStringWithoutProtocol, "@")
+	userAndPassword := strings.Split(parts[0], ":")
+
+	addr := strings.Split(parts[1], "/")[0]
+	dbName := strings.Split(strings.Split(parts[1], "/")[1], "?")[0]
+
+	resultString := fmt.Sprintf("mysql://%s:%s@tcp(%s:3306)/%s?reconnect=true", userAndPassword[0], userAndPassword[1], addr, dbName)
+	return resultString
 }
 
 func createUnixTimeOutOfString(lastSeen string) (int, error) {
