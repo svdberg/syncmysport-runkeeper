@@ -83,14 +83,15 @@ func (st SyncTask) Sync() (int, int, error) {
 	totalItemsCreated := 0
 	for i := 0; i < itemsToSyncToRk.NumElements(); i++ {
 		log.Printf("Now storing item %s to RunKeeper", itemsToSyncToRk.Get(i))
-		//uri, err := rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
+		uri, err := rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
 
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//if uri != "" {
-		totalItemsCreated++
-		//}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if uri != "" {
+			log.Printf("URI of activity: %s", uri)
+			totalItemsCreated++
+		}
 	}
 	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
 }
