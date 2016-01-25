@@ -6,6 +6,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/bradfitz/latlong",
+			"Rev": "7d3ff04aa2b06b9db6947f7d99a4bb3cc66570bc"
+		},
+		{
 			"ImportPath": "github.com/c9s/go-runkeeper",
 			"Rev": "f1602ad761d8add1c10fd3661ae3398ae37f09b0"
 		},

@@ -25,7 +25,7 @@ func main() {
 	portString := os.Getenv("PORT")
 
 	if portString == "" {
-		log.Fatal("$PORT must be set")
+		log.Print("$PORT must be set, falling back to 8100")
 	}
 	port, nerr := strconv.Atoi(portString)
 	if nerr != nil {
@@ -63,11 +63,17 @@ func startSync() {
 	allSyncs, err := repo.RetrieveAllSyncTasks()
 	log.Printf("Retrieved %d sync tasks", len(allSyncs))
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		//retrival failed, we log and return
+		log.Print("ERROR: error retrieving Sync Tasks, db down?")
+		return
 	}
 	for _, syncer := range allSyncs {
 		log.Printf("Now syncing for task: %s, %s, %s", syncer.StravaToken, syncer.RunkeeperToken, time.Unix(int64(syncer.LastSeenTimestamp), 0))
-		difference, nrItemsCreated := syncer.Sync()
+		difference, nrItemsCreated, err := syncer.Sync()
+		if err != nil {
+			log.Print("ERROR: errors during sync, aborting this task: %s", syncer)
+			return
+		}
 		log.Printf("Nr of Activities missing in RunKeeper: %d, Actvities created: %d", difference, nrItemsCreated)
 		if difference == nrItemsCreated {
 			log.Print("Updating last seen timestamp")

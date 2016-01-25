@@ -30,11 +30,14 @@ func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int) *SyncTask {
 /*
  * return the Total difference and the number of Activites created
  */
-func (st SyncTask) Sync() (int, int) {
+func (st SyncTask) Sync() (int, int, error) {
 	//get activities from strava
-	log.Printf("STV token: %s, RK token: %s", st.StravaToken, st.RunkeeperToken)
 	stvClient := stv.CreateStravaClient(st.StravaToken)
-	activities, _ := stvClient.GetSTVActivitiesSince(st.LastSeenTimestamp)
+	activities, err := stvClient.GetSTVActivitiesSince(st.LastSeenTimestamp)
+	if err != nil {
+		log.Print("Error retrieving Strava activitites since %s, aborting this run", st.LastSeenTimestamp)
+		return 0, 0, err
+	}
 	stvDetailedActivities := dm.NewActivitySet()
 	for _, actSummary := range activities {
 		//get Detailed Actv
@@ -80,14 +83,14 @@ func (st SyncTask) Sync() (int, int) {
 	totalItemsCreated := 0
 	for i := 0; i < itemsToSyncToRk.NumElements(); i++ {
 		log.Printf("Now storing item %s to RunKeeper", itemsToSyncToRk.Get(i))
-		uri, err := rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
+		//uri, err := rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
 
-		if err != nil {
-			log.Fatal(err)
-		}
-		if uri != "" {
-			totalItemsCreated++
-		}
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//if uri != "" {
+		totalItemsCreated++
+		//}
 	}
-	return itemsToSyncToRk.NumElements(), totalItemsCreated
+	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
 }

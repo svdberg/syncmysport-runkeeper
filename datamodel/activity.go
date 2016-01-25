@@ -82,6 +82,7 @@ type Activity struct {
 	Type             string  `json:"type"` //"Running", "Cycling", "Swimming"
 	Calories         float64 `json:"calories"`
 	AverageHeartRate int     `json:"average_heartrate"`
+	UtcOffSet        int     `json:"utc_offset"`
 	//Laps = lapList if lapList is not None else []
 	//Stats = ActivityStatistics(distance=distance)
 	//TZ = tz
@@ -147,6 +148,7 @@ func CreateActivity() *Activity {
 	activity.GPS = make([]GPS, 0)
 	activity.HeartRate = make([]HeartRate, 0)
 	activity.Source = Source
+	activity.UtcOffSet = 0
 	return &activity
 }
 
@@ -154,9 +156,9 @@ func (a Activity) String() string {
 	gpsSubSel := fmt.Sprintf("%v...", takeFirstNOrMax(a.GPS, 5))
 	hrSubSel := fmt.Sprintf("%v...", takeFirstNOrMaxHr(a.HeartRate, 5))
 	endTime := time.Unix(int64(a.StartTime), 0).Add(time.Duration(a.Duration) * time.Second)
-	return fmt.Sprintf("Activity: %s, Type: %s, start-time: %s,  end-time: %s, duration: %s, GPS: %s, HR: %s", a.Name, a.Type,
+	return fmt.Sprintf("Activity: %s, Type: %s, start-time: %s,  end-time: %s, utc_offset: %d, duration: %s, GPS: %s, HR: %s", a.Name, a.Type,
 		time.Unix(int64(a.StartTime), 0).Format("02-01-2006 15:04 MST"), endTime.Format("02-01-2006 15:04 MST"),
-		time.Duration(a.Duration)*time.Second, gpsSubSel, hrSubSel)
+		a.UtcOffSet, time.Duration(a.Duration)*time.Second, gpsSubSel, hrSubSel)
 }
 
 func (a Activity) ConsideredEqual(otherActivity *Activity) bool {

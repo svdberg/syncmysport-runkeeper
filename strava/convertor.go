@@ -4,6 +4,7 @@ import (
 	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"log"
+	"time"
 )
 
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
@@ -16,6 +17,12 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.Calories = stravaActivity.Calories
 	stvActivity.Distance = stravaActivity.Distance
 	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
+	loc, err := time.LoadLocation(stravaActivity.TimeZone)
+	if err != nil {
+		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
+		_, offsetInSeconds := timeInTZ.Zone()
+		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
+	}
 
 	if stravaActivity.Type.String() == "Run" {
 		stvActivity.Type = "Running"

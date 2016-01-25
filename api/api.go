@@ -32,6 +32,7 @@ func SyncTaskShow(response http.ResponseWriter, request *http.Request) {
 }
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
+	//TODO. Check if there already is a task with either of the keys
 	syncTask := sync.CreateSyncTask("", "", -1)
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {

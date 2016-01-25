@@ -111,8 +111,8 @@ func TestString(t *testing.T) {
 	activity.Duration = 10
 	endString := now.Add(time.Duration(10) * time.Second).Format("02-01-2006 15:04 MST")
 
-	expectedFormatString := "Activity: test-act, Type: Running, start-time: %s,  end-time: %s, duration: %ds, GPS: []..., HR: []..."
-	expectedString := fmt.Sprintf(expectedFormatString, nowString, endString, 10)
+	expectedFormatString := "Activity: test-act, Type: Running, start-time: %s,  end-time: %s, utc_offset: %d, duration: %ds, GPS: []..., HR: []..."
+	expectedString := fmt.Sprintf(expectedFormatString, nowString, endString, 0, 10)
 
 	res := fmt.Sprintf("%s", activity)
 	if res != expectedString {
