@@ -36,7 +36,7 @@ func main() {
 		log.Print("Error converting $PORT to an int: %q - Using default", err)
 		port = 8100
 	}
-	DbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
+	DbConnectionString = os.Getenv("CLEARDB_DATABASE_URL")
 
 	RkSecret = os.Getenv("RUNKEEPER_SECRET")
 	if RkSecret == "" {
