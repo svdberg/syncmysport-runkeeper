@@ -13,7 +13,7 @@ import (
 )
 
 const startTime = -1 * time.Duration(1) * time.Hour * 24 * 365 //1 year ago
-const ClientId = "73664cff18ed4800aab6cffc7ef8f4e1"
+const RkClientId = "73664cff18ed4800aab6cffc7ef8f4e1"
 
 var (
 	DbConnectionString string
@@ -36,6 +36,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 		RequestClientGenerator: nil,
 	}
 
+	log.Printf("callback url: %s", authenticator.AuthorizationURL("state1", strava.Permissions.Public, true))
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
@@ -96,7 +97,7 @@ func ObtainBearerToken(code string) {
 	formData := make(map[string][]string)
 	formData["grant_type"] = []string{"authorization_code"}
 	formData["code"] = []string{code}
-	formData["client_id"] = []string{ClientId}
+	formData["client_id"] = []string{RkClientId}
 	formData["client_secret"] = []string{RkSecret}
 	formData["redirect_uri"] = []string{RedirectUriRk}
 	client := new(http.Client)
