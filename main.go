@@ -49,7 +49,7 @@ func main() {
 	}
 
 	//Start Scheduler
-	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s", port, DbConnectionString)
+	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s, RKSecret: %s, RKRedirect: %s,", port, DbConnectionString, RkSecret, RedirectUri)
 	log.Print("Starting SyncTask Scheduler")
 	c := cron.New()
 	err = c.AddFunc("0 5/15 * * *", startSync) //every 15 minutes, starting 5 in

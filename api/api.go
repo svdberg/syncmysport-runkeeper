@@ -33,6 +33,7 @@ func Start(connString string, port int, secret string, redirect string) {
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
 	go ObtainBearerToken(code)
+	//redirect to sign up page with Acknowledgement of success..
 	response.Write([]uint8("Called Back!\n"))
 }
 
@@ -62,7 +63,7 @@ func ObtainBearerToken(code string) {
 				task.RunkeeperToken = token
 				db.UpdateSyncTask(*task)
 			} else {
-				log.Printf("Token %s is alrady stored for task id: %d", token, task.Uid)
+				log.Printf("Token %s is already stored for task id: %d", token, task.Uid)
 			}
 		}
 	} else {
