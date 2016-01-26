@@ -22,6 +22,8 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
 		_, offsetInSeconds := timeInTZ.Zone()
 		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
+	} else {
+		log.Print("Error reading location from strava Activity: %s", err)
 	}
 
 	if stravaActivity.Type.String() == "Run" {
@@ -30,6 +32,9 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		stvActivity.Type = "Cycling"
 	} else if stravaActivity.Type.String() == "Swim" {
 		stvActivity.Type = "Swimming"
+	} else {
+		//I don't know, call it Activity
+		stvActivity.Type = "Activity"
 	}
 
 	if gpsTrack != nil && gpsTrack.Location != nil && timeStream != nil {
