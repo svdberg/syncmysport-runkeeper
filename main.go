@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const tsDelta = -5 //minutes
+const tsDelta = -45 //minutes
 
 //CONFIG
 var (
@@ -77,7 +77,7 @@ func startSync() {
 		log.Printf("Nr of Activities missing in RunKeeper: %d, Actvities created: %d", difference, nrItemsCreated)
 		if difference == nrItemsCreated {
 			log.Print("Updating last seen timestamp")
-			//subtract 5 minutes to prevent activites being missed
+			//subtract 45 minutes to prevent activites being missed
 			syncer.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())
 			rowsUpdated, err := repo.UpdateSyncTask(syncer)
 			if err != nil || rowsUpdated != 1 {
