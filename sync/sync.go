@@ -30,7 +30,7 @@ func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int) *SyncTask {
 /*
  * return the Total difference and the number of Activites created
  */
-func (st SyncTask) Sync() (int, int, error) {
+func (st SyncTask) Sync(env string) (int, int, error) {
 	//get activities from strava
 	stvClient := stv.CreateStravaClient(st.StravaToken)
 	activities, err := stvClient.GetSTVActivitiesSince(st.LastSeenTimestamp)
@@ -83,7 +83,17 @@ func (st SyncTask) Sync() (int, int, error) {
 	totalItemsCreated := 0
 	for i := 0; i < itemsToSyncToRk.NumElements(); i++ {
 		log.Printf("Now storing item %s to RunKeeper", itemsToSyncToRk.Get(i))
-		uri, err := rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
+		var (
+			uri string
+			err error
+		)
+		if env == "Prod" {
+			uri, err = rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
+		} else {
+			log.Print("Assuming DEBUG/TEST mode, not actually writing to Runkeeper")
+			err = nil
+			uri = "fake_uri"
+		}
 
 		if err != nil {
 			log.Fatal(err)

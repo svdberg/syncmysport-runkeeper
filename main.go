@@ -20,6 +20,7 @@ var (
 	DbConnectionString string
 	RedirectUri        string
 	RkSecret           string //needed for oauth
+	Environment        string
 	//StvSecret          string //needed for oauth only
 )
 
@@ -47,6 +48,8 @@ func main() {
 		//fallback to load from file
 		RedirectUri = "http://localhost:4444/code"
 	}
+
+	Environment = os.Getenv("ENVIRONMENT")
 
 	//Start Scheduler
 	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s, RKSecret: %s, RKRedirect: %s,", port, DbConnectionString, RkSecret, RedirectUri)
@@ -94,7 +97,7 @@ func startSync() {
 	}
 	for _, syncer := range allSyncs {
 		log.Printf("Now syncing for task: %s, %s, %s", syncer.StravaToken, syncer.RunkeeperToken, time.Unix(int64(syncer.LastSeenTimestamp), 0))
-		difference, nrItemsCreated, err := syncer.Sync()
+		difference, nrItemsCreated, err := syncer.Sync(Environment)
 		if err != nil {
 			log.Print("ERROR: errors during sync, aborting this task: %s", syncer)
 			return
