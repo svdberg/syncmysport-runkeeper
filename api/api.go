@@ -12,17 +12,62 @@ import (
 )
 
 const startTime = -1 * time.Duration(1) * time.Hour * 24 * 365 //1 year ago
+const ClientId = "73664cff18ed4800aab6cffc7ef8f4e1"
 
 var (
 	DbConnectionString string
+	RkSecret           string
+	RedirectUri        string
 )
 
-func Start(connString string, port int) {
+func Start(connString string, port int, secret string, redirect string) {
 	DbConnectionString = connString
+	RkSecret = secret
+	RedirectUri = redirect
 	portString := fmt.Sprintf(":%d", port)
 	router := NewRouter()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
 	log.Fatal(http.ListenAndServe(portString, router))
+}
+
+func OAuthCallback(response http.ResponseWriter, request *http.Request) {
+	code := request.URL.Query().Get("code")
+	go ObtainBearerToken(code)
+	response.Write([]uint8("Called Back!\n"))
+}
+
+func ObtainBearerToken(code string) {
+	tokenUrl := "https://runkeeper.com/apps/token"
+	formData := make(map[string][]string)
+	formData["grant_type"] = []string{"authorization_code"}
+	formData["code"] = []string{code}
+	formData["client_id"] = []string{ClientId}
+	formData["client_secret"] = []string{RkSecret}
+	formData["redirect_uri"] = []string{RedirectUri}
+	client := new(http.Client)
+	response, err := client.PostForm(tokenUrl, formData)
+	responseJson := make(map[string]string)
+	if err == nil {
+		responseBody, _ := ioutil.ReadAll(response.Body)
+		json.Unmarshal(responseBody, &responseJson)
+		token := responseJson["access_token"]
+		db := sync.CreateSyncDbRepo(DbConnectionString)
+		task, err := db.FindSyncTaskByToken(token)
+		if task == nil || err != nil {
+			syncTask := sync.CreateSyncTask("", "", -1)
+			syncTask.RunkeeperToken = token
+			db.StoreSyncTask(*syncTask)
+		} else {
+			if task.RunkeeperToken != token {
+				task.RunkeeperToken = token
+				db.UpdateSyncTask(*task)
+			} else {
+				log.Printf("Token %s is alrady stored for task id: %d", token, task.Uid)
+			}
+		}
+	} else {
+		fmt.Print(err)
+	}
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {

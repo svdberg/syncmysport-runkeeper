@@ -4,18 +4,22 @@ import (
 	cron "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/robfig/cron"
 	api "github.com/svdberg/syncmysport-runkeeper/api"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 const tsDelta = -45 //minutes
+const secret = ".rk_app_secret"
 
 //CONFIG
 var (
 	DbConnectionString string
-	//RkSecret           string //needed for oauth
+	RedirectUri        string
+	RkSecret           string //needed for oauth
 	//StvSecret          string //needed for oauth only
 )
 
@@ -32,8 +36,17 @@ func main() {
 		log.Print("Error converting $PORT to an int: %q - Using default", err)
 		port = 8100
 	}
-	dbUrl := os.Getenv("CLEARDB_DATABASE_URL")
-	DbConnectionString = dbUrl
+	DbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
+
+	RkSecret = os.Getenv("RUNKEEPER_SECRET")
+	if RkSecret == "" {
+		//fallback to load from file
+	}
+	RedirectUri = os.Getenv("RUNKEEPER_REDIRECT")
+	if RedirectUri == "" {
+		//fallback to load from file
+		RedirectUri = "http://localhost:4444/code"
+	}
 
 	//Start Scheduler
 	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s", port, DbConnectionString)
@@ -47,7 +60,19 @@ func main() {
 
 	//Start api
 	log.Print("Launching REST API")
-	api.Start(DbConnectionString, port)
+	api.Start(DbConnectionString, port, RkSecret, RedirectUri)
+}
+
+func loadSecret() string {
+	stat, _ := os.Stat(secret)
+	var secret string
+	if stat != nil {
+		file, _ := os.Open(secret)
+		fileContents, _ := ioutil.ReadAll(file)
+		file.Close()
+		secret = strings.TrimSpace(string(fileContents))
+	}
+	return secret
 }
 
 /*

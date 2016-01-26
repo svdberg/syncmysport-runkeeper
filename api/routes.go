@@ -31,6 +31,12 @@ func NewRouter() *mux.Router {
 
 var routes = Routes{
 	Route{
+		"OAuthCallback",
+		"GET",
+		"/code",
+		OAuthCallback,
+	},
+	Route{
 		"SyncTaskIndex",
 		"GET",
 		"/synctasks",

@@ -112,7 +112,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 	return result, nil
 }
 
-func (db DbSync) RetrieveSyncTaskByToken(token string) (*SyncTask, error) {
+func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key = ? OR stv_key = ?")
 	if err != nil {
