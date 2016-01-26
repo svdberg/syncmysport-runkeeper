@@ -18,10 +18,11 @@ const secret = ".rk_app_secret"
 //CONFIG
 var (
 	DbConnectionString string
-	RedirectUri        string
+	RkRedirectUri      string
 	RkSecret           string //needed for oauth
+	StvSecret          string //needed for oauth only
+	StvRedirectUri     string
 	Environment        string
-	//StvSecret          string //needed for oauth only
 )
 
 func main() {
@@ -43,16 +44,27 @@ func main() {
 	if RkSecret == "" {
 		//fallback to load from file
 	}
-	RedirectUri = os.Getenv("RUNKEEPER_REDIRECT")
-	if RedirectUri == "" {
+	RkRedirectUri = os.Getenv("RUNKEEPER_REDIRECT")
+	if RkRedirectUri == "" {
 		//fallback to load from file
-		RedirectUri = "http://localhost:4444/code"
+		RkRedirectUri = "http://localhost:4444/code"
+	}
+
+	StvSecret = os.Getenv("STRAVA_SECRET")
+	if StvSecret == "" {
+		//fallback to load from file
+	}
+	StvRedirectUri = os.Getenv("STRAVA_REDIRECT")
+	if StvRedirectUri == "" {
+		//fallback to load from file
+		StvRedirectUri = "http://localhost:4444/code"
 	}
 
 	Environment = os.Getenv("ENVIRONMENT")
 
 	//Start Scheduler
-	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s, RKSecret: %s, RKRedirect: %s,", port, DbConnectionString, RkSecret, RedirectUri)
+	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s, RKSecret: %s, RKRedirect: %s, StvSecret: %s, StvRedirect: %s",
+		port, DbConnectionString, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
 	log.Print("Starting SyncTask Scheduler")
 	c := cron.New()
 	err = c.AddFunc("0 5/15 * * *", startSync) //every 15 minutes, starting 5 in
@@ -63,7 +75,7 @@ func main() {
 
 	//Start api
 	log.Print("Launching REST API")
-	api.Start(DbConnectionString, port, RkSecret, RedirectUri)
+	api.Start(DbConnectionString, port, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
 }
 
 func loadSecret() string {

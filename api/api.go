@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
 	"io/ioutil"
@@ -17,19 +18,72 @@ const ClientId = "73664cff18ed4800aab6cffc7ef8f4e1"
 var (
 	DbConnectionString string
 	RkSecret           string
-	RedirectUri        string
+	StvSecret          string
+	RedirectUriRk      string
+	RedirectUriStv     string
+	authenticator      *strava.OAuthAuthenticator
 )
 
-func Start(connString string, port int, secret string, redirect string) {
+func Start(connString string, port int, secretRk string, redirectRk string, secretStv string, redirectStv string) {
 	DbConnectionString = connString
-	RkSecret = secret
-	RedirectUri = redirect
+	RkSecret = secretRk
+	RedirectUriRk = redirectRk
 	portString := fmt.Sprintf(":%d", port)
+
+	//for strava
+	authenticator = &strava.OAuthAuthenticator{
+		CallbackURL:            RedirectUriStv,
+		RequestClientGenerator: nil,
+	}
+
 	router := NewRouter()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
+	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
 	log.Fatal(http.ListenAndServe(portString, router))
 }
 
+func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "SUCCESS:\nAt this point you can use this information to create a new user or link the account to one of your existing users\n")
+	fmt.Fprintf(w, "State: %s\n\n", auth.State)
+	fmt.Fprintf(w, "Access Token: %s\n\n", auth.AccessToken)
+
+	fmt.Fprintf(w, "The Authenticated Athlete (you):\n")
+	content, _ := json.MarshalIndent(auth.Athlete, "", " ")
+	fmt.Fprint(w, string(content))
+
+	db := sync.CreateSyncDbRepo(DbConnectionString)
+	task, err := db.FindSyncTaskByToken(auth.AccessToken)
+	if task == nil || err != nil {
+		syncTask := sync.CreateSyncTask("", "", -1)
+		syncTask.StravaToken = auth.AccessToken
+		db.StoreSyncTask(*syncTask)
+	} else {
+		if task.StravaToken != auth.AccessToken {
+			task.StravaToken = auth.AccessToken
+			db.UpdateSyncTask(*task)
+		} else {
+			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
+		}
+	}
+}
+
+func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Authorization Failure:\n")
+
+	// some standard error checking
+	if err == strava.OAuthAuthorizationDeniedErr {
+		fmt.Fprint(w, "The user clicked the 'Do not Authorize' button on the previous page.\n")
+		fmt.Fprint(w, "This is the main error your application should handle.")
+	} else if err == strava.OAuthInvalidCredentialsErr {
+		fmt.Fprint(w, "You provided an incorrect client_id or client_secret.\nDid you remember to set them at the begininng of this file?")
+	} else if err == strava.OAuthInvalidCodeErr {
+		fmt.Fprint(w, "The temporary token was not recognized, this shouldn't happen normally")
+	} else if err == strava.OAuthServerErr {
+		fmt.Fprint(w, "There was some sort of server error, try again to see if the problem continues")
+	} else {
+		fmt.Fprint(w, err)
+	}
+}
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
 	go ObtainBearerToken(code)
@@ -44,7 +98,7 @@ func ObtainBearerToken(code string) {
 	formData["code"] = []string{code}
 	formData["client_id"] = []string{ClientId}
 	formData["client_secret"] = []string{RkSecret}
-	formData["redirect_uri"] = []string{RedirectUri}
+	formData["redirect_uri"] = []string{RedirectUriRk}
 	client := new(http.Client)
 	response, err := client.PostForm(tokenUrl, formData)
 	responseJson := make(map[string]string)
