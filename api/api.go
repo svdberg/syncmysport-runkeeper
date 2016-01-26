@@ -32,6 +32,9 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	StvSecret = secretStv
 	portString := fmt.Sprintf(":%d", port)
 
+	strava.ClientId = 9667
+	strava.ClientSecret = StvSecret
+
 	//for strava
 	authenticator = &strava.OAuthAuthenticator{
 		CallbackURL:            RedirectUriStv,
