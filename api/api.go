@@ -28,6 +28,8 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	DbConnectionString = connString
 	RkSecret = secretRk
 	RedirectUriRk = redirectRk
+	RedirectUriStv = redirectStv
+	StvSecret = secretStv
 	portString := fmt.Sprintf(":%d", port)
 
 	//for strava
