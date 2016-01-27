@@ -32,9 +32,13 @@
         var parts = value.split("; " + name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
       }
-      c = getCookie("smscookie")
+      c = getCookie("strava")
       if (c) {
           $('.stvButton').hide();
+      }
+      c = getCookie("runkeeper")
+      if (c) {
+        $(',rkButton').hide();
       }
     </script>
 
