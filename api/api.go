@@ -75,14 +75,12 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 
 	} else {
 		//update cookie
-		//expire := time.Now().AddDate(0, 1, 0) // one month
-		//cookie := http.Cookie{"strava", fmt.Sprintf("%s", task.StravaToken), "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
-		//fmt.Sprintf("strava=%s", task.StravaToken),
-		//[]string{fmt.Sprintf("strava=%s", task.StravaToken)}}
+		expire := time.Now().AddDate(0, 1, 0) // one month
+		cookie := http.Cookie{"strava", fmt.Sprintf("%s", task.StravaToken), "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
+			fmt.Sprintf("strava=%s", task.StravaToken),
+			[]string{fmt.Sprintf("strava=%s", task.StravaToken)}}
 
-		cookie := &http.Cookie{Name: "test", Value: "tcookie", Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
-
-		http.SetCookie(w, cookie)
+		http.SetCookie(w, &cookie)
 
 		if task.StravaToken != auth.AccessToken {
 			task.StravaToken = auth.AccessToken
@@ -92,7 +90,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
-	//http.Redirect(w, r, "/connect.html", 303)
+	http.Redirect(w, r, "/connect.html", 303)
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
@@ -152,6 +150,14 @@ func ObtainBearerToken(code string) {
 	} else {
 		fmt.Print(err)
 	}
+}
+
+func TestCookie(response http.ResponseWriter, request *http.Request) {
+	cookie := &http.Cookie{Name: "test", Value: "tcookie", Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+	http.SetCookie(response, cookie)
+
+	fmt.Fprintf(response, "State: %s\n\n", "Hello Cookie")
+
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
