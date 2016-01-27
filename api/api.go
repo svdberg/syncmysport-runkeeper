@@ -62,6 +62,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 	if task == nil || err != nil {
 		syncTask := sync.CreateSyncTask("", "", -1)
 		syncTask.StravaToken = auth.AccessToken
+		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 		db.StoreSyncTask(*syncTask)
 	} else {
 		if task.StravaToken != auth.AccessToken {
@@ -117,6 +118,7 @@ func ObtainBearerToken(code string) {
 		if task == nil || err != nil {
 			syncTask := sync.CreateSyncTask("", "", -1)
 			syncTask.RunkeeperToken = token
+			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
 		} else {
 			if task.RunkeeperToken != token {
@@ -137,6 +139,12 @@ func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
 func SyncTaskShow(response http.ResponseWriter, request *http.Request) {
 }
 
+func nowMinusOneHourInUnix() int {
+	now := time.Now().UTC()
+	nowMinusOneHour := now.Add(time.Duration(1) * time.Hour)
+	return int(nowMinusOneHour.Unix())
+}
+
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
 	//TODO. Check if there already is a task with either of the keys
 	syncTask := sync.CreateSyncTask("", "", -1)
@@ -155,8 +163,9 @@ func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//Creation set the last know timestamp to 1 year ago
-	syncTask.LastSeenTimestamp = int(time.Now().Add(startTime).Unix())
+	//Creation set the last know timestamp to 1 hour ago
+	syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
+
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	_, _, st, _ := db.StoreSyncTask(*syncTask)
 
