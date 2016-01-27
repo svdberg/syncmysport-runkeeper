@@ -66,7 +66,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		_, _, _, err := db.StoreSyncTask(*syncTask)
 		if err != nil {
 			expire := time.Now().AddDate(0, 0, 1)
-			cookie := http.Cookie{"test", "smscookie", "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
+			cookie := http.Cookie{"strava", fmt.Sprintf("%s", syncTask.StravaToken), "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
 				fmt.Sprintf("strava=%s", syncTask.StravaToken),
 				[]string{fmt.Sprintf("strava=%s", syncTask.StravaToken)}}
 
@@ -89,6 +89,8 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
 		}
 	}
+	othercookie := &http.Cookie{Name: "test", Value: "tcookie", Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
+	http.SetCookie(w, othercookie)
 	//redirect back to connect
 	http.Redirect(w, r, "/connect.html", 303)
 }
@@ -114,7 +116,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
 	go ObtainBearerToken(code)
 	//redirect to sign up page with Acknowledgement of success..
-	response.Write([]uint8("Called Back!\n"))
+	http.Redirect(response, request, "/connect.html", 303)
 }
 
 func ObtainBearerToken(code string) {
