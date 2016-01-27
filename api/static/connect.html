@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <!--<link rel="icon" href="../../favicon.ico">-->
 
     <title>Strava and Runkeeper Login</title>
 
@@ -65,17 +64,42 @@
 
   <body>
     <div class="container">
-      <div class="rkButton">
-        <a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="#">Home</a></li>
+            <li role="presentation"><a href="#">About</a></li>
+            <li role="presentation"><a href="#">Contact</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">SyncMySport</h3>
       </div>
-      <div style="display:none" class="rkDone">
-        <p>Runkeeper Already connected!</p>
+
+      <div class="jumbotron">
+        <h1>Connect to services</h1>
+        <p class="lead">Connect to both services to start syncing your items from Strava -> Runkeeper</p>
+        <p class="lead">Syncing will start from one hour in the past.</p>
       </div>
-      <div class='stvButton'>
-        <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
-      </div>
-      <div style="display:none" class="stvDone">
-        <p>Strava Already connected!</p>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <div class="rkButton">
+            <h4>Runkeeper</h4>
+            <a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+          </div>
+          <div style="display:none" class="rkDone">
+            <h4>Runkeeper</h4>
+            <p>Runkeeper Already connected!</p>
+          </div>
+          <div class='stvButton'>
+            <h4>Strava</h4>
+            <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
+          </div>
+          <div style="display:none" class="stvDone">
+            <h4>Strava</h4>
+            <p>Strava Already connected!</p>
+          </div>
+        </div>
       </div>
     </div>
   </body>
