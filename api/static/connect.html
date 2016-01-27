@@ -32,14 +32,24 @@
         var parts = value.split("; " + name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
       }
-      c = getCookie("strava")
-      if (c) {
-          $('.stvButton').hide();
+
+      function hideButton(name) {
+        c = getCookie(name)
+        var button = ''
+        if (name == "strava"){
+          button = '.stvButton'
+        } else if (name == "runkeeper"){
+          button = '.rkButton'
+        }
+        if (c) {
+            $(button).hide();
+        }
       }
-      c = getCookie("runkeeper")
-      if (c) {
-        $(',rkButton').hide();
-      }
+
+      $(document).ready(function(){
+        hideButton("strava");
+        hideButton("runkeeper");
+      });
     </script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
