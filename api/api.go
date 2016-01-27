@@ -158,7 +158,7 @@ func TestCookie(response http.ResponseWriter, request *http.Request) {
 
 	fmt.Fprintf(response, "State: %s\n\n", "Hello Cookie")
 
-	http.Redirect(response, request, "/index.html", 301)
+	http.Redirect(response, request, "/index.html", 307)
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
