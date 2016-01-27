@@ -153,11 +153,12 @@ func ObtainBearerToken(code string) {
 }
 
 func TestCookie(response http.ResponseWriter, request *http.Request) {
-	cookie := &http.Cookie{Name: "test", Value: "tcookie", Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: true}
+	cookie := &http.Cookie{Name: "test", Value: "tcookie", Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 	http.SetCookie(response, cookie)
 
 	fmt.Fprintf(response, "State: %s\n\n", "Hello Cookie")
 
+	http.Redirect(response, request, "/index.html", 301)
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
