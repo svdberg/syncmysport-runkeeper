@@ -44,7 +44,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	log.Printf("callback url: %s", authenticator.AuthorizationURL("state1", strava.Permissions.Public, true))
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/"))).Host("www.syncmysport.com")
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
 	log.Fatal(http.ListenAndServe(portString, router))
 }
 
