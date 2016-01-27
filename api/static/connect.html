@@ -36,13 +36,17 @@
       function hideButton(name) {
         c = getCookie(name)
         var button = ''
+        var successDiv = ''
         if (name == "strava"){
           button = '.stvButton'
+          successDiv = '.stvDone'
         } else if (name == "runkeeper"){
           button = '.rkButton'
+          successDiv = '.rkDone'
         }
         if (c) {
             $(button).hide();
+            $(successDiv).show();
         }
       }
 
@@ -64,8 +68,14 @@
       <div class="rkButton">
         <a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
       </div>
+      <div style="display:none" class="rkDone">
+        <p>Runkeeper Already connected!</p>
+      </div>
       <div class='stvButton'>
         <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
+      </div>
+      <div style="display:none" class="stvDone">
+        <p>Strava Already connected!</p>
       </div>
     </div>
   </body>
