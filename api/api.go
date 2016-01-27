@@ -84,7 +84,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
-	http.Redirect(w, r, "/connect.html", 303)
+	http.Redirect(w, r, "www.syncmysport.com/connect.html", 303)
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
@@ -108,7 +108,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
 	go ObtainBearerToken(code)
 	//redirect to sign up page with Acknowledgement of success..
-	http.Redirect(response, request, "/connect.html", 303)
+	http.Redirect(response, request, "www.syncmysport.com/connect.html", 303)
 }
 
 func ObtainBearerToken(code string) {
