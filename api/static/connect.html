@@ -23,6 +23,14 @@
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="js/ie-emulation-modes-warning.js"></script>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <script>
+      if (document.cookie.indexOf('strava=') >= 0) {
+          $('.stvButton').hide();
+      }
+    </script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -32,11 +40,13 @@
   </head>
 
   <body>
-
     <div class="container">
- 
-<a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
-<a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
-</div>
-</body>
+      <div class="rkButton">
+        <a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+      </div>
+      <div class='stvButton'>
+        <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
+      </div>
+    </div>
+  </body>
 </html>

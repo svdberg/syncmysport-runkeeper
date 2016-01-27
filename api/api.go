@@ -49,13 +49,13 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 }
 
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "SUCCESS:\nAt this point you can use this information to create a new user or link the account to one of your existing users\n")
-	fmt.Fprintf(w, "State: %s\n\n", auth.State)
-	fmt.Fprintf(w, "Access Token: %s\n\n", auth.AccessToken)
+	//fmt.Fprintf(w, "SUCCESS:\nAt this point you can use this information to create a new user or link the account to one of your existing users\n")
+	//fmt.Fprintf(w, "State: %s\n\n", auth.State)
+	//fmt.Fprintf(w, "Access Token: %s\n\n", auth.AccessToken)
 
-	fmt.Fprintf(w, "The Authenticated Athlete (you):\n")
-	content, _ := json.MarshalIndent(auth.Athlete, "", " ")
-	fmt.Fprint(w, string(content))
+	//fmt.Fprintf(w, "The Authenticated Athlete (you):\n")
+	//content, _ := json.MarshalIndent(auth.Athlete, "", " ")
+	//fmt.Fprint(w, string(content))
 
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
@@ -63,8 +63,25 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		syncTask := sync.CreateSyncTask("", "", -1)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
-		db.StoreSyncTask(*syncTask)
+		_, _, _, err := db.StoreSyncTask(*syncTask)
+		if err != nil {
+			expire := time.Now().AddDate(0, 0, 1)
+			cookie := http.Cookie{"test", "smscookie", "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
+				fmt.Sprintf("strava=%s", syncTask.StravaToken),
+				[]string{fmt.Sprintf("strava=%s", syncTask.StravaToken)}}
+
+			http.SetCookie(w, &cookie)
+		}
+
 	} else {
+		//update cookie
+		expire := time.Now().AddDate(0, 0, 1)
+		cookie := http.Cookie{"test", "smscookie", "/", "www.syncmysport.com", expire, expire.Format(time.UnixDate), 86400, true, true,
+			fmt.Sprintf("strava=%s", task.StravaToken),
+			[]string{fmt.Sprintf("strava=%s", task.StravaToken)}}
+
+		http.SetCookie(w, &cookie)
+
 		if task.StravaToken != auth.AccessToken {
 			task.StravaToken = auth.AccessToken
 			db.UpdateSyncTask(*task)
@@ -72,6 +89,8 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
 		}
 	}
+	//redirect back to connect
+	http.Redirect(w, r, "/connect.html", 303)
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
