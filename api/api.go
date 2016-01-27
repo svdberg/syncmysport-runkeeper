@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
@@ -106,12 +107,19 @@ func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
 }
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
-	go ObtainBearerToken(code)
+	syncTask, err := ObtainBearerToken(code)
+	if err != nil {
+		//report 40x
+	}
 	//redirect to sign up page with Acknowledgement of success..
+	cookie := &http.Cookie{Name: "runkeeper", Value: fmt.Sprintf("%s", syncTask.RunkeeperToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
+	cookie.Domain = "www.syncmysport.com"
+	http.SetCookie(response, cookie)
+
 	http.Redirect(response, request, "http://www.syncmysport.com/connect.html", 303)
 }
 
-func ObtainBearerToken(code string) {
+func ObtainBearerToken(code string) (*sync.SyncTask, error) {
 	tokenUrl := "https://runkeeper.com/apps/token"
 	formData := make(map[string][]string)
 	formData["grant_type"] = []string{"authorization_code"}
@@ -133,6 +141,7 @@ func ObtainBearerToken(code string) {
 			syncTask.RunkeeperToken = token
 			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
+			return syncTask, nil
 		} else {
 			if task.RunkeeperToken != token {
 				task.RunkeeperToken = token
@@ -140,10 +149,12 @@ func ObtainBearerToken(code string) {
 			} else {
 				log.Printf("Token %s is already stored for task id: %d", token, task.Uid)
 			}
+			return task, nil
 		}
 	} else {
 		fmt.Print(err)
 	}
+	return nil, errors.New("Not happened")
 }
 
 func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
