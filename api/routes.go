@@ -18,6 +18,7 @@ type Routes []Route
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
+	router.Host("www.syncmysport.com")
 	for _, route := range routes {
 		router.
 			Methods(route.Method).

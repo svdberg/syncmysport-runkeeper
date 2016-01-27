@@ -66,14 +66,14 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		_, _, _, err := db.StoreSyncTask(*syncTask)
 		if err != nil {
 			cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", syncTask.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
-			//cookie.Domain = "www.syncmysport.com"
+			cookie.Domain = "www.syncmysport.com"
 			http.SetCookie(w, cookie)
 		}
 
 	} else {
 		//update cookie
 		cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", task.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
-		//cookie.Domain = "www.syncmysport.com"
+		cookie.Domain = "www.syncmysport.com"
 		http.SetCookie(w, cookie)
 
 		if task.StravaToken != auth.AccessToken {
