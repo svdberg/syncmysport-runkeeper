@@ -1,1 +1,2 @@
-web: syncmysport-runkeeper
+web: syncmysport-web
+worker: syncmysport-worker

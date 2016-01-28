@@ -1,0 +1,64 @@
+package main
+
+import (
+	"encoding/json"
+	"os"
+	"os/signal"
+	"syscall"
+
+	sync "github.com/svdberg/syncmysport-runkeeper/sync"
+	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/bgentry/que-go"
+	"github.com/jackc/pgx"
+)
+
+var (
+	qc      *que.Client
+	pgxpool *pgx.ConnPool
+)
+
+// syncTaskJob would do whatever syncing is necessary in the background
+func syncTaskJob(j *que.Job) error {
+	var synctask sync.SyncTask
+	err := json.Unmarshal(j.Args, &synctask)
+	if err != nil {
+		log.WithField("args", string(j.Args)).Error("Unable to unmarshal job arguments into SyncTask")
+		return err
+	}
+
+	log.WithField("SyncTask", synctask).Info("Processing Synctask!")
+	synctask.Sync()
+
+	return nil
+}
+
+func main() {
+	var err error
+	dbURL := os.Getenv("DATABASE_URL")
+	pgxpool, qc, err = shared.Setup(dbURL)
+	if err != nil {
+		log.WithField("DATABASE_URL", dbURL).Fatal("Errors setting up the queue / database: ", err)
+	}
+	defer pgxpool.Close()
+
+	wm := que.WorkMap{
+		shared.SyncTaskJob: syncTaskJob,
+	}
+
+	// 2 worker go routines
+	workers := que.NewWorkerPool(qc, wm, 2)
+
+	// Catch signal so we can shutdown gracefully
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)
+
+	go workers.Start()
+
+	// Wait for a signal
+	sig := <-sigCh
+	log.WithField("signal", sig).Info("Signal received. Shutting down.")
+
+	workers.Shutdown()
+}

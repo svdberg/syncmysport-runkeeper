@@ -23,16 +23,17 @@ type SyncTask struct {
 	RunkeeperToken    string `json:"rk_token"`
 	LastSeenTimestamp int    `json:"last_seen_ts"`
 	Uid               int64  `json:"id"`
+	Environment       string `json:"environment"`
 }
 
-func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int) *SyncTask {
-	return &SyncTask{stvToken, rkToken, lastSeenTS, -1}
+func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int, environment string) *SyncTask {
+	return &SyncTask{stvToken, rkToken, lastSeenTS, -1, environment}
 }
 
 /*
  * return the Total difference and the number of Activites created
  */
-func (st SyncTask) Sync(env string) (int, int, error) {
+func (st SyncTask) Sync() (int, int, error) {
 	//get activities from strava
 	stvClient := stv.CreateStravaClient(st.StravaToken)
 	//normalize time to the start of the day, because Runkeeper only supports days as offset, not timestamps
@@ -91,7 +92,7 @@ func (st SyncTask) Sync(env string) (int, int, error) {
 			uri string
 			err error
 		)
-		if env == "Prod" {
+		if st.Environment == "Prod" {
 			uri, err = rkClient.PostActivity(rk.ConvertToRkActivity(itemsToSyncToRk.Get(i)))
 		} else {
 			log.Print("Assuming DEBUG/TEST mode, not actually writing to Runkeeper")

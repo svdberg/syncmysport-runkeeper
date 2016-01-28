@@ -99,14 +99,15 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 		var stvToken string
 		var uid int64
 		var lastSeenTime string
+		var environment string
 
-		rows.Scan(&uid, &rkToken, &stvToken, &lastSeenTime)
+		rows.Scan(&uid, &rkToken, &stvToken, &lastSeenTime, &environment)
 		unixTime, err := createUnixTimeOutOfString(lastSeenTime)
 		if err != nil {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
 
-		sync := CreateSyncTask(rkToken, stvToken, unixTime)
+		sync := CreateSyncTask(rkToken, stvToken, unixTime, environment)
 		sync.Uid = uid
 		result = append(result, *sync)
 	}
@@ -129,7 +130,9 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 		var rkToken string
 		var stvToken string
 		var lastSeen string
-		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen)
+		var environment string
+
+		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen, &environment)
 		if err != nil {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
@@ -137,7 +140,7 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 		if err != nil {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
-		task := CreateSyncTask(rkToken, stvToken, unixTime)
+		task := CreateSyncTask(rkToken, stvToken, unixTime, environment)
 		task.Uid = uid
 		return task, nil
 	}
