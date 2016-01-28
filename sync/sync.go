@@ -36,7 +36,7 @@ func (st SyncTask) Sync(env string) (int, int, error) {
 	//get activities from strava
 	stvClient := stv.CreateStravaClient(st.StravaToken)
 	//normalize time to the start of the day, because Runkeeper only supports days as offset, not timestamps
-	tsOfStartOfDay := calculateTsAtStartOfDay(st.LastSeenTimestamp)
+	tsOfStartOfDay := CalculateTsAtStartOfDay(st.LastSeenTimestamp)
 	activities, err := stvClient.GetSTVActivitiesSince(tsOfStartOfDay)
 	if err != nil {
 		log.Print("Error retrieving Strava activitites since %s, aborting this run", st.LastSeenTimestamp)
@@ -110,10 +110,14 @@ func (st SyncTask) Sync(env string) (int, int, error) {
 	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
 }
 
-func calculateTsAtStartOfDay(timestamp int) int {
+func CalculateTsAtStartOfDay(timestamp int) int {
 	timeAtTimestamp := time.Unix(int64(timestamp), 0).UTC()
 	year, month, day := timeAtTimestamp.Date()
 	//	Mon Jan 2 15:04:05 -0700 MST 2006
-	ts, _ := time.Parse("2006-01-02 MST", fmt.Sprintf("%d-%d-%d UTC", year, month, day))
+	ts, err := time.Parse("2006-1-2 15:04:05 MST", fmt.Sprintf("%d-%d-%d 00:00:00 UTC", year, month, day))
+	if err != nil {
+		log.Printf("Error parsing time from y/m/d to ts of current day: %s", err)
+	}
+	ts = ts.Add(time.Duration(1) * time.Minute)
 	return int(ts.Unix())
 }
