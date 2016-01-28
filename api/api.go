@@ -22,16 +22,18 @@ var (
 	StvSecret          string
 	RedirectUriRk      string
 	RedirectUriStv     string
+	Environment        string
 	authenticator      *strava.OAuthAuthenticator
 )
 
-func Start(connString string, port int, secretRk string, redirectRk string, secretStv string, redirectStv string) {
+func Start(connString string, port int, secretRk string, redirectRk string, secretStv string, redirectStv string, env string) {
 	DbConnectionString = connString
 	RkSecret = secretRk
 	RedirectUriRk = redirectRk
 	RedirectUriStv = redirectStv
 	StvSecret = secretStv
 	portString := fmt.Sprintf(":%d", port)
+	Environment = env
 
 	strava.ClientId = 9667
 	strava.ClientSecret = StvSecret
@@ -61,7 +63,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
 	if task == nil || err != nil {
-		syncTask := sync.CreateSyncTask("", "", -1)
+		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 		_, _, _, err := db.StoreSyncTask(*syncTask)
@@ -137,7 +139,7 @@ func ObtainBearerToken(code string) (*sync.SyncTask, error) {
 		db := sync.CreateSyncDbRepo(DbConnectionString)
 		task, err := db.FindSyncTaskByToken(token)
 		if task == nil || err != nil {
-			syncTask := sync.CreateSyncTask("", "", -1)
+			syncTask := sync.CreateSyncTask("", "", -1, Environment)
 			syncTask.RunkeeperToken = token
 			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
@@ -171,7 +173,7 @@ func nowMinusOneHourInUnix() int {
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
 	//TODO. Check if there already is a task with either of the keys
-	syncTask := sync.CreateSyncTask("", "", -1)
+	syncTask := sync.CreateSyncTask("", "", -1, Environment)
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)

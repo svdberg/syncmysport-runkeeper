@@ -6,8 +6,13 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/bradfitz/latlong",
-			"Rev": "7d3ff04aa2b06b9db6947f7d99a4bb3cc66570bc"
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7-55-gf7f79f7",
+			"Rev": "f7f79f729e0fbe2fcc061db48a9ba0263f588252"
+		},
+		{
+			"ImportPath": "github.com/bgentry/que-go",
+			"Rev": "f18340e98b6af0edfaa4fec11de2182346965639"
 		},
 		{
 			"ImportPath": "github.com/c9s/go-runkeeper",
@@ -27,13 +32,17 @@
 			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
 		},
 		{
-			"ImportPath": "github.com/robfig/cron",
-			"Comment": "v1-7-g32d9c27",
-			"Rev": "32d9c273155a0506d27cf73dd1246e86a470997e"
+			"ImportPath": "github.com/jackc/pgx",
+			"Comment": "v2.7.1-20-g9f9a977",
+			"Rev": "9f9a9779ac794e885f6fbb04935724f03149f092"
 		},
 		{
 			"ImportPath": "github.com/strava/go.strava",
 			"Rev": "c001695047a53b67ed2916d5162cd75a85df96cc"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "eb2c74142fd19a79b3f237334c7384d5167b1b46"
 		}
 	]
 }
