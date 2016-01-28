@@ -1,10 +1,12 @@
 package sync
 
 import (
+	"fmt"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"log"
+	"time"
 )
 
 /*
@@ -33,7 +35,9 @@ func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int) *SyncTask {
 func (st SyncTask) Sync(env string) (int, int, error) {
 	//get activities from strava
 	stvClient := stv.CreateStravaClient(st.StravaToken)
-	activities, err := stvClient.GetSTVActivitiesSince(st.LastSeenTimestamp)
+	//normalize time to the start of the day, because Runkeeper only supports days as offset, not timestamps
+	tsOfStartOfDay := calculateTsAtStartOfDay(st.LastSeenTimestamp)
+	activities, err := stvClient.GetSTVActivitiesSince(tsOfStartOfDay)
 	if err != nil {
 		log.Print("Error retrieving Strava activitites since %s, aborting this run", st.LastSeenTimestamp)
 		return 0, 0, err
@@ -104,4 +108,12 @@ func (st SyncTask) Sync(env string) (int, int, error) {
 		}
 	}
 	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
+}
+
+func calculateTsAtStartOfDay(timestamp int) int {
+	timeAtTimestamp := time.Unix(int64(timestamp), 0).UTC()
+	year, month, day := timeAtTimestamp.Date()
+	//	Mon Jan 2 15:04:05 -0700 MST 2006
+	ts, _ := time.Parse("2006-01-02 MST", fmt.Sprintf("%d-%d-%d UTC", year, month, day))
+	return int(ts.Unix())
 }
