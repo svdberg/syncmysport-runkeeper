@@ -93,14 +93,17 @@ func startSync() {
 	allSyncs, err := repo.RetrieveAllSyncTasks()
 	log.Printf("Retrieved %d sync tasks", len(allSyncs))
 	if err != nil {
-		//retrival failed, we log and return
+		//retrieval failed, we log and return
 		log.Print("ERROR: error retrieving Sync Tasks, db down?")
 		return
 	}
 	for _, syncer := range allSyncs {
 		//que SyncTask for worker
 		log.Printf("Now syncing for task: %s, %s, %s", syncer.StravaToken, syncer.RunkeeperToken, time.Unix(int64(syncer.LastSeenTimestamp), 0))
-		queueSyncTask(syncer)
+		err := queueSyncTask(syncer)
+		if err != nil {
+			log.Fatal("Error enqueuing job for sync: %s", err)
+		}
 
 		log.Print("Updating last seen timestamp")
 		//subtract 45 minutes to prevent activites being missed
