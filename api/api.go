@@ -79,6 +79,13 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		cookie.Domain = "www.syncmysport.com"
 		http.SetCookie(w, cookie)
 
+		//if runkeeper is set, set that cookie to
+		if task.RunkeeperToken != "" {
+			cookie = &http.Cookie{Name: "runkeeper", Value: fmt.Sprintf("%s", task.RunkeeperToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
+			cookie.Domain = "www.syncmysport.com"
+			http.SetCookie(w, cookie)
+		}
+
 		if task.StravaToken != auth.AccessToken {
 			task.StravaToken = auth.AccessToken
 			db.UpdateSyncTask(*task)
@@ -113,6 +120,13 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		//report 40x
 	}
+	//if strava is set, set that cookie to
+	if syncTask.StravaToken != "" {
+		cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", syncTask.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
+		cookie.Domain = "www.syncmysport.com"
+		http.SetCookie(response, cookie)
+	}
+
 	//redirect to sign up page with Acknowledgement of success..
 	cookie := &http.Cookie{Name: "runkeeper", Value: fmt.Sprintf("%s", syncTask.RunkeeperToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 	cookie.Domain = "www.syncmysport.com"
