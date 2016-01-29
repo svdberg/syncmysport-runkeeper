@@ -35,6 +35,8 @@ func syncTaskJob(j *que.Job) error {
 }
 
 func main() {
+	log.Print("Starting worker")
+
 	var err error
 	dbURL := os.Getenv("DATABASE_URL")
 	pgxpool, qc, err = shared.Setup(dbURL)
