@@ -1,6 +1,7 @@
 RunKeeper API for Go
 ---------------------
 
+How to run (example):
 ```sh
 go run -x bin/activity.go {access token}
 ```

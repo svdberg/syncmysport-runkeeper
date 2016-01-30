@@ -77,6 +77,7 @@ type ActivityType string
 
 var ActivityTypes = struct {
 	Ride           ActivityType
+	VirtualRide    ActivityType
 	AlpineSki      ActivityType
 	BackcountrySki ActivityType
 	Hike           ActivityType
@@ -108,7 +109,7 @@ var ActivityTypes = struct {
 	WinterSport        ActivityType
 	CrossCountrySkiing ActivityType
 	EBikeRide          ActivityType
-}{"Ride", "AlpineSki", "BackcountrySki", "Hike", "IceSkate", "InlineSkate", "NordicSki", "RollerSki",
+}{"Ride", "VirtualRide", "AlpineSki", "BackcountrySki", "Hike", "IceSkate", "InlineSkate", "NordicSki", "RollerSki",
 	"Run", "Walk", "Workout", "Snowboard", "Snowshoe", "Kitesurf", "Windsurf", "Swim",
 
 	"WaterSport", "Canoeing", "Kayaking", "Rowing", "StandUpPaddling", "Surfing",
@@ -458,6 +459,8 @@ func (t ActivityType) Id() int {
 		return 41
 	case ActivityTypes.EBikeRide:
 		return 42
+	case ActivityTypes.VirtualRide:
+		return 43
 	}
 
 	return 0
@@ -467,6 +470,8 @@ func (t ActivityType) String() string {
 	switch t {
 	case ActivityTypes.Ride:
 		return "Ride"
+	case ActivityTypes.VirtualRide:
+		return "VirtualRide"
 	case ActivityTypes.EBikeRide:
 		return "EBikeRide"
 	case ActivityTypes.AlpineSki:

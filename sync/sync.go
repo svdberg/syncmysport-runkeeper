@@ -101,7 +101,7 @@ func (st SyncTask) Sync() (int, int, error) {
 		}
 
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Something failed during the write to Runkeeper: %s", err)
 		}
 		if uri != "" {
 			log.Printf("URI of activity: %s", uri)

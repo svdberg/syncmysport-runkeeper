@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	latlong "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bradfitz/latlong"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 const (
@@ -137,14 +139,52 @@ func (self *Client) GetFitnessActivity(activityUri string, userParams *Params) (
 	if err := parseJsonResponse(resp, &activity); err != nil {
 		return nil, err
 	}
+
+	//Now that we know the activity, Calculate the TZ the activity was in, and change the StartTime to UTC,
+	//and store the UTC offset.
+	activitiesLocation := calculateLocationOfActivity(&activity)
+	writeTimeOffsetFromUTC(&activity, activitiesLocation)
+	correctTimeForOffsetFromUTC(&activity)
 	return &activity, nil
+}
+
+func correctTimeForOffsetFromUTC(activity *FitnessActivity) {
+	correctedTime := Time(time.Time(activity.StartTime).Add(time.Duration(-1*activity.UtcOffset) * time.Hour))
+	activity.StartTime = correctedTime
+}
+
+func writeTimeOffsetFromUTC(activity *FitnessActivity, location *time.Location) {
+	//in case of UTC we dont do anything, we assume the time is already in UTC
+	if location != time.UTC {
+		timeInTZ := time.Time(activity.StartTime).In(location)
+		_, offsetInSeconds := timeInTZ.Zone()
+		activity.UtcOffset = offsetInSeconds / 60 / 60
+	} else {
+		activity.UtcOffset = 0
+	}
+}
+
+func calculateLocationOfActivity(activity *FitnessActivity) *time.Location {
+	//get the first lat/long from the GPS track
+	if len(activity.Path) > 0 {
+		latLong := activity.Path[0]
+		timeZone := latlong.LookupZoneName(latLong.Latitude, latLong.Longitude)
+		location, err := time.LoadLocation(timeZone)
+		if err != nil {
+			return time.UTC
+		}
+		return location
+	} else {
+		//Assume UTC??
+		return time.UTC
+	}
+	//cant happen
+	return nil
 }
 
 func (self *Client) PostNewFitnessActivity(activity *FitnessActivityNew) (string, error) {
 	payload, err := json.Marshal(activity)
-	fmt.Printf("JSON: %s", payload)
 	req, err := self.createBaseRequest("POST", "/fitnessActivities", ContentTypeNewActivity, bytes.NewBuffer(payload))
-	fmt.Printf("%s\n", req)
 	if err != nil {
 		return "", err
 	}

@@ -184,7 +184,7 @@ type Time time.Time
 // Unmarshal "Tue, 1 Mar 2011 07:00:00"
 func (self *Time) UnmarshalJSON(data []byte) (err error) {
 	if len(data) > 1 && data[0] == '"' && data[len(data)-1] == '"' {
-		loc, _ := time.LoadLocation("Local")
+		loc, _ := time.LoadLocation("UTC")
 		t, err := time.ParseInLocation("Mon, _2 Jan 2006 15:04:05", string(data[1:len(data)-1]), loc)
 		if err != nil {
 			return err

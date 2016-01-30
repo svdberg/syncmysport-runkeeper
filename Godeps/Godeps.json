@@ -15,8 +15,12 @@
 			"Rev": "f18340e98b6af0edfaa4fec11de2182346965639"
 		},
 		{
+			"ImportPath": "github.com/bradfitz/latlong",
+			"Rev": "7d3ff04aa2b06b9db6947f7d99a4bb3cc66570bc"
+		},
+		{
 			"ImportPath": "github.com/c9s/go-runkeeper",
-			"Rev": "f1602ad761d8add1c10fd3661ae3398ae37f09b0"
+			"Rev": "6d4dac0c82e6ff9d97e0a0ce20b864a6d4066802"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
@@ -38,7 +42,7 @@
 		},
 		{
 			"ImportPath": "github.com/strava/go.strava",
-			"Rev": "c001695047a53b67ed2916d5162cd75a85df96cc"
+			"Rev": "1cd0928928e7d9dc2dba2a65496295c3cddb3ce3"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
