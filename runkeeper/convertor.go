@@ -16,7 +16,7 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	//RK time is 'Local'
 	correctedTime := time.Time(rkActivity.StartTime).Add(time.Duration(rkActivity.UtcOffset) * time.Hour)
 	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
-	returnActivity.StartTime = int(time.Time(rkActivity.StartTime).Unix())
+	returnActivity.StartTime = int(time.Time(correctedTime).Unix())
 	returnActivity.UtcOffSet = rkActivity.UtcOffset
 	returnActivity.Duration = int(rkActivity.Duration)
 	returnActivity.Name = rkActivity.Notes
