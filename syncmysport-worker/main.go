@@ -50,7 +50,9 @@ func main() {
 	}
 
 	// 2 worker go routines
-	workers := que.NewWorkerPool(qc, wm, 2)
+	// LIMITED to 1 per worker.. otherwise we overload Runkeeper
+	// and I guess create activties twice.
+	workers := que.NewWorkerPool(qc, wm, 1)
 
 	// Catch signal so we can shutdown gracefully
 	sigCh := make(chan os.Signal)
