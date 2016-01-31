@@ -97,8 +97,9 @@ type FitnessActivity struct {
 	Share    string `json:"share"`     // "share" : "Everyone",
 	ShareMap string `json:"share_map"` // "share_map" : "Friends",
 
-	Distance []Distance `json:"distance"` // "distance" : [ { "distance" : 0, "timestamp" : 0 }, ... ]
-	Path     []Path     `json:"path"`
+	Distance  []Distance  `json:"distance"` // "distance" : [ { "distance" : 0, "timestamp" : 0 }, ... ]
+	Path      []Path      `json:"path"`
+	HeartRate []HeartRate `json:"heart_rate"`
 }
 
 /**

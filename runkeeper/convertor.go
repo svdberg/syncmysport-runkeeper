@@ -26,6 +26,8 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity.AverageHeartRate = 0 //rkActivity.AverageHeartRate
 	returnActivity.Calories = rkActivity.TotalCalories
 	returnActivity.Distance = rkActivity.TotalDistance
+	returnActivity.GPS = convertFromPath(rkActivity.Path)
+	returnActivity.HeartRate = convertFromHeartrate(rkActivity.HeartRate)
 
 	//log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
 	return returnActivity
@@ -56,6 +58,14 @@ func convertToPath(gps []dm.GPS) []runkeeper.Path {
 		rkPath[i] = runkeeper.Path{gp.Altitude, gp.Longitude, "gps", gp.Latitude, gp.Timestamp}
 	}
 	return rkPath
+}
+
+func convertFromPath(path []runkeeper.Path) []dm.GPS {
+	dmPath := make([]dm.GPS, len(path))
+	for i, rp := range path {
+		dmPath[i] = dm.GPS{rp.Timestamp, rp.Altitude, rp.Longitude, rp.Latitude}
+	}
+	return dmPath
 }
 
 func convertToHR(hr []dm.HeartRate) []runkeeper.HeartRate {

@@ -20,7 +20,7 @@
 		},
 		{
 			"ImportPath": "github.com/c9s/go-runkeeper",
-			"Rev": "6d4dac0c82e6ff9d97e0a0ce20b864a6d4066802"
+			"Rev": "884d3f2a6c2163f00c01fc0b59706290cc23903a"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
@@ -42,7 +42,7 @@
 		},
 		{
 			"ImportPath": "github.com/strava/go.strava",
-			"Rev": "1cd0928928e7d9dc2dba2a65496295c3cddb3ce3"
+			"Rev": "2441e8ba39f75e3608dbdf2154de95512026b44c"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",

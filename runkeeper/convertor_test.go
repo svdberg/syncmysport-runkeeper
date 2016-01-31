@@ -18,6 +18,9 @@ func TestFromRKConvertor(t *testing.T) {
 	rkActivity.EntryMode = "API"
 	rkActivity.HasMap = true
 	rkActivity.Uri = "/activities/40"
+	rkActivity.Path = make([]runkeeper.Path, 2)
+	rkActivity.Path[0] = runkeeper.Path{1.0, 0.0, "gps", 10.0, 11.0}
+	rkActivity.Path[1] = runkeeper.Path{2.0, 0.0, "gps", 15.0, 13.0}
 
 	expectedActivity := dm.CreateActivity()
 	expectedActivity.StartTime = int(tim.Unix())
