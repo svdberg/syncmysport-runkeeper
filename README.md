@@ -17,3 +17,7 @@ TODO
 ~~- Bootstap to make it pretty~~
 ~~- Patch the freakin TZ troubles in the c9s runkeeper lib~~
 
+Website
+-------
+
+This application is available at [www.syncmysport.com](http://www.syncmysport.com/)
