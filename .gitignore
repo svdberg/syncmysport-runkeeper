@@ -31,3 +31,5 @@ _testmain.go
 
 connectToDb.sh
 syncmysport-runkeeper
+syncmysport-worker/syncmysport-worker
+syncmysport-web/syncmysport-web
