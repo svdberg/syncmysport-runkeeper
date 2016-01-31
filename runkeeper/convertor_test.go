@@ -21,6 +21,8 @@ func TestFromRKConvertor(t *testing.T) {
 	rkActivity.Path = make([]runkeeper.Path, 2)
 	rkActivity.Path[0] = runkeeper.Path{1.0, 0.0, "gps", 10.0, 11.0}
 	rkActivity.Path[1] = runkeeper.Path{2.0, 0.0, "gps", 15.0, 13.0}
+	rkActivity.HeartRate = make([]runkeeper.HeartRate, 1)
+	rkActivity.HeartRate[0] = runkeeper.HeartRate{1.0, 2}
 
 	expectedActivity := dm.CreateActivity()
 	expectedActivity.StartTime = int(tim.Unix())
@@ -28,7 +30,10 @@ func TestFromRKConvertor(t *testing.T) {
 	expectedActivity.Type = "Running"
 	activity := ConvertToActivity(&rkActivity)
 
-	if !activity.ConsideredEqual(expectedActivity) {
+	if !activity.ConsideredEqual(expectedActivity) ||
+		len(activity.GPS) != 2 ||
+		len(activity.HeartRate) != 1 {
+
 		t.Error(fmt.Sprintf("activity %s should match result activity", activity))
 	}
 }
