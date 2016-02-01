@@ -2,6 +2,9 @@ package sync
 
 import (
 	"fmt"
+	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	"testing"
 	"time"
 )
@@ -19,5 +22,74 @@ func TestTsAtStartOfDay(t *testing.T) {
 	}
 }
 
+//keeping track
+var activtiesCreated = make([]*runkeeper.FitnessActivityNew, 1)
+var now = time.Now()
+
+//mock runkeeper
+type stubRK struct{}
+
+func (rk stubRK) PostActivity(activity *runkeeper.FitnessActivityNew) (string, error) {
+	activtiesCreated[0] = activity
+	return "fake_uri", nil
+}
+func (rk stubRK) EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error) {
+	return nil, nil
+}
+func (rk stubRK) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity {
+	return make([]runkeeper.FitnessActivity, 0)
+}
+func (rk stubRK) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error) {
+	emptyFeed := &runkeeper.FitnessActivityFeed{0, make([]runkeeper.FitnessActivity, 0), ""}
+	return emptyFeed, nil
+}
+
+var stubRKImpl rk.RunkeeperCientInt = &stubRK{}
+
+//mock stv
+type stubSTV struct{}
+
+func (stv stubSTV) GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error) {
+	results := make([]*stravalib.ActivitySummary, 1)
+	activity := &stravalib.ActivitySummary{}
+	activity.Id = 666
+	results[0] = activity
+	return results, nil
+}
+func (stv stubSTV) GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error) {
+	detailedAct := &stravalib.ActivityDetailed{}
+	detailedAct.Id = activityId
+	detailedAct.StartDate = now
+	detailedAct.Type = stravalib.ActivityTypes.Run
+	detailedAct.MovingTime = 3600
+	detailedAct.ElapsedTime = 3600
+	return detailedAct, nil
+}
+func (stv stubSTV) GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error) {
+	return nil, nil
+}
+
+var stubStvImpl stubSTV
+
+/*
+ * Test a basic scenario from STV -> Runkeeper without any GPS or HR data.
+ * Assumes activity in Local TZ
+ */
 func TestBasicSync(t *testing.T) {
+	rkToken := "abcdef"
+	stToken := "ghijkz"
+	lastSeen := int(time.Now().Unix())
+	syncTask := CreateSyncTask(rkToken, stToken, lastSeen, "Prod")
+	syncTask.Sync(stubStvImpl, stubRKImpl)
+
+	expectedActivity := runkeeper.FitnessActivityNew{}
+	expectedActivity.Type = "Running"
+	expectedActivity.StartTime = runkeeper.Time(now)
+
+	//RK actvitites are created in local time
+	createdTimeString := time.Time(activtiesCreated[0].StartTime).Local().Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	expectedTimeString := time.Time(expectedActivity.StartTime).Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	if len(activtiesCreated) != 1 || createdTimeString != expectedTimeString {
+		t.Error(fmt.Sprintf("%s is not %s", time.Time(activtiesCreated[0].StartTime).Local(), time.Time(expectedActivity.StartTime)))
+	}
 }
