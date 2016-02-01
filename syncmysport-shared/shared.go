@@ -5,12 +5,6 @@ import (
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/jackc/pgx"
 )
 
-// IndexRequest container.
-// The URL is the url to index content from.
-type IndexRequest struct {
-	URL string `json:url`
-}
-
 const (
 	SyncTaskJob = "SyncTasks" // SyncTasks queue name
 

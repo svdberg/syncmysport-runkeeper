@@ -105,6 +105,7 @@ func startSync() {
 			log.Fatal("Error enqueuing job for sync: %s", err)
 		}
 
+		//We might need to move this to the SyncTask itself now that we run on workers.
 		log.Print("Updating last seen timestamp")
 		//subtract 45 minutes to prevent activites being missed
 		syncer.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())

@@ -31,6 +31,7 @@ func syncTaskJob(j *que.Job) error {
 	}
 
 	log.WithField("SyncTask", synctask).Info("Processing Synctask!")
+
 	stvClientImpl := stv.CreateStravaClient(synctask.StravaToken)
 	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
 	synctask.Sync(stvClientImpl, rkClientImpl)

@@ -13,11 +13,18 @@ import (
 //should come from config (file) somewhere...
 const default_connection_string = "root:root123@/syncmysport?charset=utf8,parseTime=true"
 
+type DbSyncInt interface {
+	UpdateSyncTask(sync SyncTask) (int, error)
+	StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error)
+	RetrieveAllSyncTasks() ([]SyncTask, error)
+	FindSyncTaskByToken(token string) (*SyncTask, error)
+}
+
 type DbSync struct {
 	ConnectionString string
 }
 
-func CreateSyncDbRepo(dbString string) *DbSync {
+func CreateSyncDbRepo(dbString string) DbSyncInt {
 	if dbString != "" {
 		dbString = makeDbStringHerokuCompliant(dbString)
 		appendedConnectionString := fmt.Sprintf("%s", dbString)
