@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
 
@@ -29,7 +31,9 @@ func syncTaskJob(j *que.Job) error {
 	}
 
 	log.WithField("SyncTask", synctask).Info("Processing Synctask!")
-	synctask.Sync()
+	stvClientImpl := stv.CreateStravaClient(synctask.StravaToken)
+	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
+	synctask.Sync(stvClientImpl, rkClientImpl)
 
 	return nil
 }

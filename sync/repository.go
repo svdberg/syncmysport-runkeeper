@@ -19,8 +19,7 @@ type DbSync struct {
 
 func CreateSyncDbRepo(dbString string) *DbSync {
 	if dbString != "" {
-		dbString = MakeDbStringHerokuCompliant(dbString)
-		//appendedConnectionString := fmt.Sprintf("%s?parseTime=true", dbString)
+		dbString = makeDbStringHerokuCompliant(dbString)
 		appendedConnectionString := fmt.Sprintf("%s", dbString)
 		log.Printf("Connection string was: %s, now is %s", dbString, appendedConnectionString)
 		return &DbSync{appendedConnectionString}
@@ -147,7 +146,7 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 	return nil, nil
 }
 
-func MakeDbStringHerokuCompliant(dbString string) string {
+func makeDbStringHerokuCompliant(dbString string) string {
 	dbStringWithoutProtocol := strings.Replace(dbString, "mysql://", "", 1)
 	parts := strings.Split(dbStringWithoutProtocol, "@")
 	userAndPassword := strings.Split(parts[0], ":")

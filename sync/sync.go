@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type Syncer interface {
+	Sync() (int, int, error)
+}
+
 /*
  * Returns the set of activities that are in RunKeeper, but not in Strava.
  * So if the set of Runkeeper activites is A, and the set of Strava activities is B,
@@ -33,11 +37,10 @@ func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int, environment
 /*
  * return the Total difference and the number of Activites created
  */
-func (st SyncTask) Sync() (int, int, error) {
+func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCientInt) (int, int, error) {
 	//get activities from strava
-	stvClient := stv.CreateStravaClient(st.StravaToken)
 	//normalize time to the start of the day, because Runkeeper only supports days as offset, not timestamps
-	tsOfStartOfDay := CalculateTsAtStartOfDay(st.LastSeenTimestamp)
+	tsOfStartOfDay := calculateTsAtStartOfDay(st.LastSeenTimestamp)
 	activities, err := stvClient.GetSTVActivitiesSince(tsOfStartOfDay)
 	if err != nil {
 		log.Print("Error retrieving Strava activitites since %s, aborting this run", st.LastSeenTimestamp)
@@ -63,7 +66,6 @@ func (st SyncTask) Sync() (int, int, error) {
 	}
 
 	//get activities from runkeeper
-	rkClient := rk.CreateRKClient(st.RunkeeperToken)
 	rkActivitiesOverview, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
 	rkDetailActivities := rkClient.EnrichRKActivities(rkActivitiesOverview)
 	//log.Printf("rk detail activities: %s", rkDetailActivities)
@@ -111,7 +113,7 @@ func (st SyncTask) Sync() (int, int, error) {
 	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
 }
 
-func CalculateTsAtStartOfDay(timestamp int) int {
+func calculateTsAtStartOfDay(timestamp int) int {
 	timeAtTimestamp := time.Unix(int64(timestamp), 0).UTC()
 	year, month, day := timeAtTimestamp.Date()
 	//	Mon Jan 2 15:04:05 -0700 MST 2006

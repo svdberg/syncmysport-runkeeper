@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+type StravaClientInt interface {
+	GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error)
+	GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error)
+	GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error)
+}
+
 type StravaDetailed stravalib.ActivityDetailed
 
 type StravaClient struct {
@@ -13,7 +19,7 @@ type StravaClient struct {
 	Client      *stravalib.Client
 }
 
-func CreateStravaClient(token string) *StravaClient {
+func CreateStravaClient(token string) StravaClientInt {
 	client := stravalib.NewClient(token)
 	return &StravaClient{token, client}
 }

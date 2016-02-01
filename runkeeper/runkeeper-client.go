@@ -5,12 +5,19 @@ import (
 	"time"
 )
 
+type RunkeeperCientInt interface {
+	PostActivity(activity *runkeeper.FitnessActivityNew) (string, error)
+	EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error)
+	EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity
+	GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error)
+}
+
 type RkClient struct {
 	BearerToken string
 	Client      *runkeeper.Client
 }
 
-func CreateRKClient(token string) *RkClient {
+func CreateRKClient(token string) RunkeeperCientInt {
 	client := runkeeper.NewClient(token)
 	return &RkClient{token, client}
 }
