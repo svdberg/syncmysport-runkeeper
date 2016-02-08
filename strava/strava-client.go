@@ -11,6 +11,7 @@ type StravaClientInt interface {
 	GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error)
 	GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error)
 	ValidateToken(token string) bool
+	DeAuthorize(token string) error
 }
 
 type StravaDetailed stravalib.ActivityDetailed
@@ -68,6 +69,11 @@ func (c StravaClient) ValidateToken(token string) bool {
 		return false
 	}
 	return true
+}
+
+func (c StravaClient) DeAuthorize(token string) error {
+	deAuthClient := stravalib.NewClient(token)
+	return stravalib.NewOAuthService(deAuthClient).Deauthorize().Do()
 }
 
 func (da StravaDetailed) String() string {
