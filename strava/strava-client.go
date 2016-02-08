@@ -10,6 +10,7 @@ type StravaClientInt interface {
 	GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error)
 	GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error)
 	GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error)
+	ValidateToken(token string) bool
 }
 
 type StravaDetailed stravalib.ActivityDetailed
@@ -56,6 +57,17 @@ func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) 
 	} else {
 		return nil, err
 	}
+}
+
+func (c StravaClient) ValidateToken(token string) bool {
+	//create a new client to validate this token
+	verifyClient := stravalib.NewClient(token)
+	service := stravalib.NewAthletesService(verifyClient)
+	_, err := service.Get(1304613).Do() //hey, thats me!
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (da StravaDetailed) String() string {

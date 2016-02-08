@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	//rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
 	"io/ioutil"
@@ -45,21 +47,15 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	}
 
 	log.Printf("callback url: %s", authenticator.AuthorizationURL("state1", strava.Permissions.Public, true))
+
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
+
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
 	log.Fatal(http.ListenAndServe(portString, router))
 }
 
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
-	//fmt.Fprintf(w, "SUCCESS:\nAt this point you can use this information to create a new user or link the account to one of your existing users\n")
-	//fmt.Fprintf(w, "State: %s\n\n", auth.State)
-	//fmt.Fprintf(w, "Access Token: %s\n\n", auth.AccessToken)
-
-	//fmt.Fprintf(w, "The Authenticated Athlete (you):\n")
-	//content, _ := json.MarshalIndent(auth.Athlete, "", " ")
-	//fmt.Fprint(w, string(content))
-
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
 	if task == nil || err != nil {
@@ -94,7 +90,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
-	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303)
+	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303) //replace by env var
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
@@ -183,6 +179,39 @@ func nowMinusOneHourInUnix() int {
 	now := time.Now().UTC()
 	nowMinusOneHour := now.Add(time.Duration(1) * time.Hour)
 	return int(nowMinusOneHour.Unix())
+}
+
+func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+
+	if token != "" {
+		//validate this token against Strava
+		stvClientImpl := stv.CreateStravaClient(token)
+		authInStrava := stvClientImpl.ValidateToken(token)
+
+		if authInStrava {
+			//remove from db
+			db := sync.CreateSyncDbRepo(DbConnectionString)
+			task, err := db.FindSyncTaskByToken(token)
+			if err != nil {
+				//return 5xx?
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			task.StravaToken = ""
+			db.UpdateSyncTask(*task)
+
+			//drop cookie
+			cookie := &http.Cookie{Name: "strava", Value: "", MaxAge: -1} //MaxAge will remove the cookie
+			cookie.Domain = "www.syncmysport.com"
+			http.SetCookie(w, cookie)
+
+			w.Write([]byte("OK")) //200 OK
+			return                //hmm
+		}
+	}
+	w.Write([]byte("OK")) //200 OK
+	//validate this token against Runkeeper
 }
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
