@@ -205,12 +205,16 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 			}
 			task.StravaToken = ""
 			db.UpdateSyncTask(*task)
-			log.Printf("Removed Strava token from %d", task.Uid)
+			log.Printf("Removed Strava token from task %d", task.Uid)
 
 			//We should also revoke auth at Strava
-			stvClientImpl.DeAuthorize(token)
+			err = stvClientImpl.DeAuthorize(token)
+			if err != nil {
+				log.Printf("Error while deauthorizing at strava: %s", err)
+			}
 
 			//drop cookie
+			log.Printf("Removing cookie..")
 			cookie := &http.Cookie{Name: "strava", Value: "", MaxAge: -1} //MaxAge will remove the cookie
 			cookie.Domain = "www.syncmysport.com"
 			http.SetCookie(w, cookie)
