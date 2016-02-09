@@ -59,7 +59,12 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
-	if task == nil || err != nil {
+	if err != nil {
+		log.Printf("Error loading token %s from database, aborting...", auth.AccessToken)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	if task == nil {
 		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
@@ -68,6 +73,8 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", syncTask.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 			cookie.Domain = "www.syncmysport.com"
 			http.SetCookie(w, cookie)
+		} else {
+			log.Printf("Error while creating a new SyncTask: %s", syncTask)
 		}
 
 	} else {
@@ -85,7 +92,11 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 
 		if task.StravaToken != auth.AccessToken {
 			task.StravaToken = auth.AccessToken
-			db.UpdateSyncTask(*task)
+			var i int
+			i, err = db.UpdateSyncTask(*task)
+			if i != 1 || err != nil {
+				log.Printf("Error while updating synctask %s with token %s", task, auth.AccessToken)
+			}
 		} else {
 			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
 		}
