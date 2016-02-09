@@ -102,15 +102,11 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			http.SetCookie(w, cookie)
 		}
 
-		if task.StravaToken != auth.AccessToken {
-			task.StravaToken = auth.AccessToken
-			var i int
-			i, err = db.UpdateSyncTask(*task)
-			if i != 1 || err != nil {
-				log.Printf("Error while updating synctask %s with token %s", task, auth.AccessToken)
-			}
-		} else {
-			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
+		task.StravaToken = auth.AccessToken
+		var i int
+		i, err = db.UpdateSyncTask(*task)
+		if i != 1 || err != nil {
+			log.Printf("Error while updating synctask %s with token %s", task, auth.AccessToken)
 		}
 	}
 	//redirect back to connect
