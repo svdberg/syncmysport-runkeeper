@@ -86,6 +86,8 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			if err != nil {
 				log.Printf("Error retrieving the RK based Task on Strava Auth")
 			}
+			log.Printf("Found: %s for Runkeeper SyncTask.", task)
+			task.StravaToken = auth.AccessToken
 		}
 
 		//update cookie
