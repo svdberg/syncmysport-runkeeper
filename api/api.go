@@ -74,7 +74,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			cookie.Domain = "www.syncmysport.com"
 			http.SetCookie(w, cookie)
 		} else {
-			log.Printf("Error while creating a new SyncTask: %s", syncTask)
+			log.Printf("Error while creating a new SyncTask: %s, err: %s", syncTask, err)
 		}
 
 	} else {
