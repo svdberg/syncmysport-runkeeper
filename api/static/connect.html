@@ -40,8 +40,7 @@
       function dropToken(token, service) {
         $.ajax({
             type: "DELETE",
-            url: "/token/",
-            data: token,
+            url: "/token/"+token,
             success: function(msg){
                 var button = ''
                 var successDiv = ''
