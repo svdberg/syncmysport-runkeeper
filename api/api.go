@@ -102,6 +102,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
+	//TODO. Add state here (other token)
 	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303) //replace by env var
 }
 
@@ -127,6 +128,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	syncTask, err := ObtainBearerToken(code)
 	if err != nil {
 		//report 40x
+		response.WriteHeader(http.StatusBadRequest)
 	}
 	//if strava is set, set that cookie to
 	if syncTask.StravaToken != "" {

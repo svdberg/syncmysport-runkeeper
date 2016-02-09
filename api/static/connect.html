@@ -65,6 +65,23 @@
         });
       }
 
+      function gotoOAuthLinkWithCookie(name) {
+        if (name == "strava"){
+          c = getCookie("runkeeper")
+          if c == '' {
+            //runkeeper not set yet..
+            //make jquery default call
+            "https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code"
+          } else {
+            //runkeeper set, add state to call
+            "https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state="+c
+          }
+        }
+        if (name == "runkeeper") {
+          c = getCookie("strava")
+        }
+      }
+
       function hideButton(name) {
         c = getCookie(name)
         var button = ''
