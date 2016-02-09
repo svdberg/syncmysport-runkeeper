@@ -183,6 +183,7 @@ func nowMinusOneHourInUnix() int {
 
 func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
+	log.Printf("Disassociating token %s", token)
 
 	if token != "" {
 		//validate this token against Strava
