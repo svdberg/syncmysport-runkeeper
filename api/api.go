@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	//rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	mux "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
@@ -182,7 +183,8 @@ func nowMinusOneHourInUnix() int {
 }
 
 func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
-	token := r.URL.Query().Get("token")
+	vars := mux.Vars(r)
+	token := vars["token"]
 	log.Printf("Disassociating token %s", token)
 
 	if token != "" {
