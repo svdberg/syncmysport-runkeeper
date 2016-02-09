@@ -221,6 +221,8 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 
 			w.Write([]byte("OK")) //200 OK
 			return                //hmm
+		} else {
+			log.Printf("Token %s is already not logner valid for Strava", token)
 		}
 	}
 	w.Write([]byte("OK")) //200 OK
