@@ -44,17 +44,17 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 
 	stmtOut, err := dbCon.Prepare("UPDATE sync SET rk_key=?, stv_key=?, last_succesfull_retrieve=? WHERE uid = ?")
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		return 0, errors.New("Error preparing UPDATE statement for Task")
 	}
 	defer stmtOut.Close()
 	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
 	if err != nil {
-		log.Fatal(err)
+		return 0, errors.New("Error executing the UPDATE statement for Task")
 	}
 
 	i, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		return 0, errors.New("Error reading rows affected after UPDATE")
 	}
 	return int(i), nil
 }
