@@ -66,22 +66,25 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
-	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve) VALUES(?,?,?)")
+	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve, environment) VALUES(?,?,?,?)")
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		return 0, 0, sync, err
 	}
 	defer stmtOut.Close()
-	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp))
+	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Environment)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	lastId, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	rowCnt, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	sync.Uid = lastId
 	return lastId, rowCnt, sync, nil
