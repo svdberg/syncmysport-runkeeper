@@ -190,6 +190,8 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 		authInStrava := stvClientImpl.ValidateToken(token)
 
 		if authInStrava {
+			log.Printf("Token %s is valid for Strava", token)
+
 			//remove from db
 			db := sync.CreateSyncDbRepo(DbConnectionString)
 			task, err := db.FindSyncTaskByToken(token)
@@ -200,6 +202,7 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 			}
 			task.StravaToken = ""
 			db.UpdateSyncTask(*task)
+			log.Printf("Removed Strava token from %d", task.Uid)
 
 			//We should also revoke auth at Strava
 			stvClientImpl.DeAuthorize(token)
