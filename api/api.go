@@ -64,7 +64,8 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	if task == nil {
+	runkeeperToken := auth.State
+	if task == nil && runkeeperToken == "" {
 		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
@@ -78,6 +79,15 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 
 	} else {
+
+		if task == nil {
+			//find the task for runkeeper
+			task, err = db.FindSyncTaskByToken(runkeeperToken)
+			if err != nil {
+				log.Printf("Error retrieving the RK based Task on Strava Auth")
+			}
+		}
+
 		//update cookie
 		cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", task.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 		cookie.Domain = "www.syncmysport.com"

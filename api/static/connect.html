@@ -66,20 +66,20 @@
       }
 
       function gotoOAuthLinkWithCookie(name) {
-        /*if (name == "strava"){
+        if (name == "strava"){
           c = getCookie("runkeeper")
           if c == "" {
             //runkeeper not set yet..
             //make jquery default call
-            "https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code"
+            window.location.href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code"
           } else {
             //runkeeper set, add state to call
-            "https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state="+c
+            window.location.href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state="+c
           }
         }
         if (name == "runkeeper") {
           c = getCookie("strava")
-        }*/
+        }
       }
 
       function hideButton(name) {
@@ -144,7 +144,7 @@
           </div>
           <div class='stvButton'>
             <h4>Strava</h4>
-            <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
+            <a href=gotoOAuthLinkWithCookie('strava')><img src="img/ConnectWithStrava.png" /></a>
           </div>
           <div style="display:none" class="stvDone">
             <h4>Strava</h4>
