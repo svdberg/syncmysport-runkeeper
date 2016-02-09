@@ -68,7 +68,7 @@
       function gotoOAuthLinkWithCookie(name) {
         if (name == "strava"){
           c = getCookie("runkeeper")
-          if c == "" {
+          if (c == "") {
             //runkeeper not set yet..
             //make jquery default call
             window.location.href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code"
