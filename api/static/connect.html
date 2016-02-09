@@ -32,6 +32,34 @@
         if (parts.length == 2) return parts.pop().split(";").shift();
       }
 
+      function deauthorize(name) {
+        token = getCookie(name);
+        dropToken(token, name);
+      }
+
+      function dropToken(token, service) {
+        $.ajax({
+            type: "DELETE",
+            url: "/token/",
+            data: token,
+            success: function(msg){
+                var button = ''
+                var successDiv = ''
+                if (name == "strava"){
+                  button = '.stvButton'
+                  successDiv = '.stvDone'
+                } else if (name == "runkeeper"){
+                  button = '.rkButton'
+                  successDiv = '.rkDone'
+                }
+                if (c) {
+                    $(button).show();
+                    $(successDiv).hide();
+                }
+            }
+        });
+      }
+
       function hideButton(name) {
         c = getCookie(name)
         var button = ''
@@ -90,6 +118,7 @@
           <div style="display:none" class="rkDone">
             <h4>Runkeeper</h4>
             <p>Runkeeper Already connected!</p>
+            <p><button onclick=deauthorize('runkeeper')>Deauthorize SyncMySport at Runkeeper</button></p>
           </div>
           <div class='stvButton'>
             <h4>Strava</h4>
@@ -98,6 +127,7 @@
           <div style="display:none" class="stvDone">
             <h4>Strava</h4>
             <p>Strava Already connected!</p>
+            <p><button onclick=deauthorize('strava')>Deauthorize SyncMySport at Strava</button></p>
           </div>
         </div>
       </div>
