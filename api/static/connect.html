@@ -32,6 +32,10 @@
         if (parts.length == 2) return parts.pop().split(";").shift();
       }
 
+      function delete_cookie(name) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      }
+
       function deauthorize(name) {
         token = getCookie(name);
         dropToken(token, name);
@@ -42,6 +46,8 @@
             type: "DELETE",
             url: "/token/"+token,
             success: function(msg){
+                //drop the cookie!
+                delete_cookie(service)
                 var button = ''
                 var successDiv = ''
                 if (name == "strava"){
