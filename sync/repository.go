@@ -68,6 +68,7 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 
 	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve, environment) VALUES(?,?,?,?)")
 	if err != nil {
+		log.Printf("err: %s", err)
 		return 0, 0, sync, err
 	}
 	defer stmtOut.Close()
@@ -143,11 +144,13 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 
 		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen, &environment)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			log.Printf("Error while getting results from db for token %s", token)
+			return nil, err
 		}
 		unixTime, err := createUnixTimeOutOfString(lastSeen)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			log.Printf("Error while converting timestamp from db %s", lastSeen)
+			return nil, err
 		}
 		task := CreateSyncTask(rkToken, stvToken, unixTime, environment)
 		task.Uid = uid
