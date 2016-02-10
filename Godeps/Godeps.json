@@ -20,7 +20,7 @@
 		},
 		{
 			"ImportPath": "github.com/c9s/go-runkeeper",
-			"Rev": "884d3f2a6c2163f00c01fc0b59706290cc23903a"
+			"Rev": "acd04c50a8000d92cf4d9ead4edad32569b92db2"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",

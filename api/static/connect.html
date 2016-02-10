@@ -79,6 +79,12 @@
         }
         if (name == "runkeeper") {
           c = getCookie("strava")
+          if (c == "") {
+            //<a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+            window.location.href="https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code"
+          } else {
+            window.location.href="https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state="+c
+          }
         }
       }
 

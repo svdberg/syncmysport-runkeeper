@@ -10,6 +10,8 @@ type RunkeeperCientInt interface {
 	EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error)
 	EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity
 	GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error)
+	ValidateToken(token string) bool
+	DeAuthorize(token string) error
 }
 
 type RkClient struct {
@@ -50,4 +52,16 @@ func (c RkClient) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivit
 	params = make(map[string]interface{})
 	params["noEarlierThan"] = tm.Format("2006-01-02")
 	return c.Client.GetFitnessActivityFeed(&params)
+}
+
+func (c RkClient) ValidateToken(token string) bool {
+	_, err := c.Client.GetUser()
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (c RkClient) DeAuthorize(token string) error {
+	return c.Client.Deauthorize()
 }

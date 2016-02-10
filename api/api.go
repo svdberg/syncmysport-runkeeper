@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
-	//rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	mux "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
@@ -110,7 +110,6 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
-	//TODO. Add state here (other token)
 	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303) //replace by env var
 }
 
@@ -133,7 +132,8 @@ func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
 }
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
-	syncTask, err := ObtainBearerToken(code)
+	stvToken := request.URL.Query().Get("state")
+	syncTask, err := ObtainBearerToken(code, stvToken)
 	if err != nil {
 		//report 40x
 		response.WriteHeader(http.StatusBadRequest)
@@ -153,7 +153,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	http.Redirect(response, request, "http://www.syncmysport.com/connect.html", 303)
 }
 
-func ObtainBearerToken(code string) (*sync.SyncTask, error) {
+func ObtainBearerToken(code string, stvToken string) (*sync.SyncTask, error) {
 	tokenUrl := "https://runkeeper.com/apps/token"
 	formData := make(map[string][]string)
 	formData["grant_type"] = []string{"authorization_code"}
@@ -169,14 +169,20 @@ func ObtainBearerToken(code string) (*sync.SyncTask, error) {
 		json.Unmarshal(responseBody, &responseJson)
 		token := responseJson["access_token"]
 		db := sync.CreateSyncDbRepo(DbConnectionString)
-		task, err := db.FindSyncTaskByToken(token)
+
+		var task *sync.SyncTask
+		if stvToken != "" {
+			task, err = db.FindSyncTaskByToken(stvToken)
+		} else {
+			task, err = db.FindSyncTaskByToken(token)
+		}
 		if task == nil || err != nil {
 			syncTask := sync.CreateSyncTask("", "", -1, Environment)
 			syncTask.RunkeeperToken = token
 			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
 			return syncTask, nil
-		} else {
+		} else { //existing task
 			if task.RunkeeperToken != token {
 				task.RunkeeperToken = token
 				db.UpdateSyncTask(*task)
@@ -211,7 +217,9 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 	if token != "" {
 		//validate this token against Strava
 		stvClientImpl := stv.CreateStravaClient(token)
+		rkClientImpl := rk.CreateRKClient(token)
 		authInStrava := stvClientImpl.ValidateToken(token)
+		authInRunkeeper := rkClientImpl.ValidateToken(token)
 
 		if authInStrava {
 			log.Printf("Token %s is valid for Strava", token)
@@ -242,12 +250,35 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 
 			w.Write([]byte("OK")) //200 OK
 			return                //hmm
+		}
+		if authInRunkeeper {
+			log.Printf("Token %s is valid for Runkeeper", token)
+
+			//remove from db
+			db := sync.CreateSyncDbRepo(DbConnectionString)
+			task, err := db.FindSyncTaskByToken(token)
+			if err != nil {
+				//return 5xx?
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			task.RunkeeperToken = ""
+			db.UpdateSyncTask(*task)
+			log.Printf("Removed Runkeeper token from task %d", task.Uid)
+
+			//We should also revoke auth at Runkeeper
+			err = rkClientImpl.DeAuthorize(token)
+			if err != nil {
+				log.Printf("Error while deauthorizing at runkeeper: %s", err)
+			}
+
+			w.Write([]byte("OK")) //200 OK
+			return                //hmm
 		} else {
-			log.Printf("Token %s is already not logner valid for Strava", token)
+			log.Printf("Token %s is already no longer valid for Strava or Runkeeper", token)
 		}
 	}
 	w.Write([]byte("OK")) //200 OK
-	//validate this token against Runkeeper
 }
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
