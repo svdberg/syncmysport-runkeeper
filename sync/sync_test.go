@@ -44,10 +44,26 @@ func (rk stubRK) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivity
 	return emptyFeed, nil
 }
 
+func (rk stubRK) DeAuthorize(s string) error {
+	return nil
+}
+
+func (rk stubRK) ValidateToken(s string) bool {
+	return true
+}
+
 var stubRKImpl rk.RunkeeperCientInt = &stubRK{}
 
 //mock stv
 type stubSTV struct{}
+
+func (stv stubSTV) DeAuthorize(s string) error {
+	return nil
+}
+
+func (stv stubSTV) ValidateToken(s string) bool {
+	return true
+}
 
 func (stv stubSTV) GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error) {
 	results := make([]*stravalib.ActivitySummary, 1)
