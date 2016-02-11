@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	mux "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
 	"io/ioutil"
@@ -45,35 +48,48 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	}
 
 	log.Printf("callback url: %s", authenticator.AuthorizationURL("state1", strava.Permissions.Public, true))
+
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
+
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
 	log.Fatal(http.ListenAndServe(portString, router))
 }
 
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
-	//fmt.Fprintf(w, "SUCCESS:\nAt this point you can use this information to create a new user or link the account to one of your existing users\n")
-	//fmt.Fprintf(w, "State: %s\n\n", auth.State)
-	//fmt.Fprintf(w, "Access Token: %s\n\n", auth.AccessToken)
-
-	//fmt.Fprintf(w, "The Authenticated Athlete (you):\n")
-	//content, _ := json.MarshalIndent(auth.Athlete, "", " ")
-	//fmt.Fprint(w, string(content))
-
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
-	if task == nil || err != nil {
+	if err != nil {
+		log.Printf("Error loading token %s from database, aborting...", auth.AccessToken)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	runkeeperToken := auth.State
+	if task == nil && runkeeperToken == "" {
 		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 		_, _, _, err := db.StoreSyncTask(*syncTask)
-		if err != nil {
+		if err == nil {
 			cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", syncTask.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 			cookie.Domain = "www.syncmysport.com"
 			http.SetCookie(w, cookie)
+		} else {
+			log.Printf("Error while creating a new SyncTask: %s, err: %s", syncTask, err)
 		}
 
 	} else {
+
+		if task == nil {
+			//find the task for runkeeper
+			task, err = db.FindSyncTaskByToken(runkeeperToken)
+			if err != nil {
+				log.Printf("Error retrieving the RK based Task on Strava Auth")
+			}
+			log.Printf("Found: %s for Runkeeper SyncTask.", task)
+			task.StravaToken = auth.AccessToken
+		}
+
 		//update cookie
 		cookie := &http.Cookie{Name: "strava", Value: fmt.Sprintf("%s", task.StravaToken), Expires: time.Now().Add(356 * 24 * time.Hour), HttpOnly: false}
 		cookie.Domain = "www.syncmysport.com"
@@ -86,15 +102,15 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 			http.SetCookie(w, cookie)
 		}
 
-		if task.StravaToken != auth.AccessToken {
-			task.StravaToken = auth.AccessToken
-			db.UpdateSyncTask(*task)
-		} else {
-			log.Printf("Token %s is already stored for task id: %d", auth.AccessToken, task.Uid)
+		task.StravaToken = auth.AccessToken
+		var i int
+		i, err = db.UpdateSyncTask(*task)
+		if i != 1 || err != nil {
+			log.Printf("Error while updating synctask %s with token %s", task, auth.AccessToken)
 		}
 	}
 	//redirect back to connect
-	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303)
+	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303) //replace by env var
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
@@ -116,9 +132,11 @@ func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
 }
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
-	syncTask, err := ObtainBearerToken(code)
+	stvToken := request.URL.Query().Get("state")
+	syncTask, err := ObtainBearerToken(code, stvToken)
 	if err != nil {
 		//report 40x
+		response.WriteHeader(http.StatusBadRequest)
 	}
 	//if strava is set, set that cookie to
 	if syncTask.StravaToken != "" {
@@ -135,7 +153,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	http.Redirect(response, request, "http://www.syncmysport.com/connect.html", 303)
 }
 
-func ObtainBearerToken(code string) (*sync.SyncTask, error) {
+func ObtainBearerToken(code string, stvToken string) (*sync.SyncTask, error) {
 	tokenUrl := "https://runkeeper.com/apps/token"
 	formData := make(map[string][]string)
 	formData["grant_type"] = []string{"authorization_code"}
@@ -151,14 +169,20 @@ func ObtainBearerToken(code string) (*sync.SyncTask, error) {
 		json.Unmarshal(responseBody, &responseJson)
 		token := responseJson["access_token"]
 		db := sync.CreateSyncDbRepo(DbConnectionString)
-		task, err := db.FindSyncTaskByToken(token)
+
+		var task *sync.SyncTask
+		if stvToken != "" {
+			task, err = db.FindSyncTaskByToken(stvToken)
+		} else {
+			task, err = db.FindSyncTaskByToken(token)
+		}
 		if task == nil || err != nil {
 			syncTask := sync.CreateSyncTask("", "", -1, Environment)
 			syncTask.RunkeeperToken = token
 			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
 			return syncTask, nil
-		} else {
+		} else { //existing task
 			if task.RunkeeperToken != token {
 				task.RunkeeperToken = token
 				db.UpdateSyncTask(*task)
@@ -183,6 +207,78 @@ func nowMinusOneHourInUnix() int {
 	now := time.Now().UTC()
 	nowMinusOneHour := now.Add(time.Duration(1) * time.Hour)
 	return int(nowMinusOneHour.Unix())
+}
+
+func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	token := vars["token"]
+	log.Printf("Disassociating token %s", token)
+
+	if token != "" {
+		//validate this token against Strava
+		stvClientImpl := stv.CreateStravaClient(token)
+		rkClientImpl := rk.CreateRKClient(token)
+		authInStrava := stvClientImpl.ValidateToken(token)
+		authInRunkeeper := rkClientImpl.ValidateToken(token)
+
+		if authInStrava {
+			log.Printf("Token %s is valid for Strava", token)
+
+			//remove from db
+			db := sync.CreateSyncDbRepo(DbConnectionString)
+			task, err := db.FindSyncTaskByToken(token)
+			if err != nil {
+				//return 5xx?
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			task.StravaToken = ""
+			db.UpdateSyncTask(*task)
+			log.Printf("Removed Strava token from task %d", task.Uid)
+
+			//We should also revoke auth at Strava
+			err = stvClientImpl.DeAuthorize(token)
+			if err != nil {
+				log.Printf("Error while deauthorizing at strava: %s", err)
+			}
+
+			//drop cookie
+			log.Printf("Removing cookie..")
+			cookie := &http.Cookie{Name: "strava", Value: "", MaxAge: -1} //MaxAge will remove the cookie
+			cookie.Domain = "www.syncmysport.com"
+			http.SetCookie(w, cookie)
+
+			w.Write([]byte("OK")) //200 OK
+			return                //hmm
+		}
+		if authInRunkeeper {
+			log.Printf("Token %s is valid for Runkeeper", token)
+
+			//remove from db
+			db := sync.CreateSyncDbRepo(DbConnectionString)
+			task, err := db.FindSyncTaskByToken(token)
+			if err != nil {
+				//return 5xx?
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			task.RunkeeperToken = ""
+			db.UpdateSyncTask(*task)
+			log.Printf("Removed Runkeeper token from task %d", task.Uid)
+
+			//We should also revoke auth at Runkeeper
+			err = rkClientImpl.DeAuthorize(token)
+			if err != nil {
+				log.Printf("Error while deauthorizing at runkeeper: %s", err)
+			}
+
+			w.Write([]byte("OK")) //200 OK
+			return                //hmm
+		} else {
+			log.Printf("Token %s is already no longer valid for Strava or Runkeeper", token)
+		}
+	}
+	w.Write([]byte("OK")) //200 OK
 }
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {

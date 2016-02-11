@@ -54,4 +54,10 @@ var routes = Routes{
 		"/synctasks",
 		SyncTaskCreate,
 	},
+	Route{
+		"DeleteAssociation",
+		"DELETE",
+		"/token/{token}",
+		TokenDisassociate,
+	},
 }

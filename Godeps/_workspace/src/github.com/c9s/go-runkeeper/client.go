@@ -11,6 +11,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,6 +36,7 @@ const (
 )
 
 const baseUrl = "https://api.runkeeper.com"
+const deAuthUrl = "https://runkeeper.com/apps/de-authorize"
 
 type Client struct {
 	AccessToken string
@@ -48,6 +50,21 @@ func NewClient(accessToken string) *Client {
 		panic(err)
 	}
 	return &Client{accessToken, jar, &http.Client{Jar: jar}}
+}
+
+func (self *Client) Deauthorize() error {
+	//https://runkeeper.com/apps/de-authorize
+	tokenString := fmt.Sprintf("{\"access_token\":\"%s\"}", self.AccessToken)
+	body := strings.NewReader(tokenString)
+	req, err := http.NewRequest("POST", deAuthUrl, body)
+	if err != nil {
+		return err
+	}
+	_, err = self.Do(req)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /**
@@ -94,6 +111,23 @@ func (self *Client) GetRequestParams(userParams *Params) url.Values {
 		}
 	}
 	return params
+}
+
+func (self *Client) GetUser() (*User, error) {
+	req, err := self.createBaseRequest("GET", "/User", ContentTypeUser, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := self.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	var user = User{}
+	defer resp.Body.Close()
+	if err := parseJsonResponse(resp, &user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 /**

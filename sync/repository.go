@@ -44,17 +44,17 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 
 	stmtOut, err := dbCon.Prepare("UPDATE sync SET rk_key=?, stv_key=?, last_succesfull_retrieve=? WHERE uid = ?")
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		return 0, errors.New("Error preparing UPDATE statement for Task")
 	}
 	defer stmtOut.Close()
 	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
 	if err != nil {
-		log.Fatal(err)
+		return 0, errors.New("Error executing the UPDATE statement for Task")
 	}
 
 	i, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		return 0, errors.New("Error reading rows affected after UPDATE")
 	}
 	return int(i), nil
 }
@@ -66,22 +66,26 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
-	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve) VALUES(?,?,?)")
+	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve, environment) VALUES(?,?,?,?)")
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	defer stmtOut.Close()
-	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp))
+	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Environment)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	lastId, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	rowCnt, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %s", err)
+		return 0, 0, sync, err
 	}
 	sync.Uid = lastId
 	return lastId, rowCnt, sync, nil
@@ -140,11 +144,13 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 
 		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen, &environment)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			log.Printf("Error while getting results from db for token %s", token)
+			return nil, err
 		}
 		unixTime, err := createUnixTimeOutOfString(lastSeen)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			log.Printf("Error while converting timestamp from db %s", lastSeen)
+			return nil, err
 		}
 		task := CreateSyncTask(rkToken, stvToken, unixTime, environment)
 		task.Uid = uid

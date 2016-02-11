@@ -32,6 +32,62 @@
         if (parts.length == 2) return parts.pop().split(";").shift();
       }
 
+      function deleteCookie(name) {
+        document.cookie = name +'=; Path=/; Domain=.www.syncmysport.com; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      }
+
+      function deauthorize(name) {
+        token = getCookie(name);
+        dropToken(token, name);
+      }
+
+      function dropToken(token, service) {
+        $.ajax({
+            type: "DELETE",
+            url: "/token/"+token,
+            success: function(msg){
+                //drop the cookie!
+                deleteCookie(service)
+                var button = ''
+                var successDiv = ''
+                if (service == "strava"){
+                  button = '.stvButton'
+                  successDiv = '.stvDone'
+                } else if (service == "runkeeper"){
+                  button = '.rkButton'
+                  successDiv = '.rkDone'
+                }
+                if (c) {
+                    $(button).show();
+                    $(successDiv).hide();
+                }
+            }
+        });
+      }
+
+      function gotoOAuthLinkWithCookie(name) {
+        if (name == "strava"){
+          c = getCookie("runkeeper")
+          if (c == "") {
+            //runkeeper not set yet..
+            //make jquery default call
+            window.location.href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code"
+          } else {
+            //runkeeper set, add state to call
+            window.location.href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state="+c
+          }
+        }
+        if (name == "runkeeper") {
+          c = getCookie("strava")
+          if (c == "") {
+            //<a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+            window.location.href="https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code"
+          } else {
+            window.location.href="https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state="+c
+          }
+        }
+      }
+
       function hideButton(name) {
         c = getCookie(name)
         var button = ''
@@ -85,19 +141,21 @@
         <div class="col-lg-6">
           <div class="rkButton">
             <h4>Runkeeper</h4>
-            <a href='https://runkeeper.com/apps/authorize?client_id=73664cff18ed4800aab6cffc7ef8f4e1&redirect_uri=http%3A%2F%2Fwww.syncmysport.com%2Fcode&response_type=code&state=state1'><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
+            <a href='#' onclick="gotoOAuthLinkWithCookie('runkeeper')"><img src='//static1.runkeeper.com/images/assets/connect-blue-white-200x38.png'/></a>
           </div>
           <div style="display:none" class="rkDone">
             <h4>Runkeeper</h4>
             <p>Runkeeper Already connected!</p>
+            <p><button onclick=deauthorize('runkeeper')>Deauthorize SyncMySport at Runkeeper</button></p>
           </div>
           <div class='stvButton'>
             <h4>Strava</h4>
-            <a href="https://www.strava.com/oauth/authorize?client_id=9667&redirect_uri=http://www.syncmysport.com/exchange_token&response_type=code&state=state1"><img src="img/ConnectWithStrava.png" /></a>
+            <a href="#" onclick="gotoOAuthLinkWithCookie('strava')"><img src="img/ConnectWithStrava.png" /></a>
           </div>
           <div style="display:none" class="stvDone">
             <h4>Strava</h4>
             <p>Strava Already connected!</p>
+            <p><button onclick=deauthorize('strava')>Deauthorize SyncMySport at Strava</button></p>
           </div>
         </div>
       </div>
