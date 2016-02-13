@@ -59,7 +59,7 @@ func (c RkClient) ValidateToken(token string) bool {
 	c.BearerToken = token
 	_, err := c.Client.GetUser()
 	if err != nil {
-		log.Printf("(Expected) error while validating token %s", token)
+		log.Printf("(Expected) error while validating token %s : %s", token, err)
 		return false
 	}
 	return true
