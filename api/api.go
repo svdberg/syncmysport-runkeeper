@@ -65,7 +65,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 	}
 
 	runkeeperToken := auth.State
-	if task == nil && runkeeperToken == "" {
+	if task == nil && (runkeeperToken == "" || runkeeperToken == "undefined") {
 		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
@@ -171,7 +171,7 @@ func ObtainBearerToken(code string, stvToken string) (*sync.SyncTask, error) {
 		db := sync.CreateSyncDbRepo(DbConnectionString)
 
 		var task *sync.SyncTask
-		if stvToken != "" {
+		if stvToken != "" && stvToken != "undefined" {
 			task, err = db.FindSyncTaskByToken(stvToken)
 		} else {
 			task, err = db.FindSyncTaskByToken(token)
