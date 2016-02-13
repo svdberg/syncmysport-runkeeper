@@ -114,7 +114,7 @@ func (self *Client) GetRequestParams(userParams *Params) url.Values {
 }
 
 func (self *Client) GetUser() (*User, error) {
-	req, err := self.createBaseRequest("GET", "/User", ContentTypeUser, nil)
+	req, err := self.createBaseRequest("GET", "/user", ContentTypeUser, nil)
 	if err != nil {
 		return nil, err
 	}
