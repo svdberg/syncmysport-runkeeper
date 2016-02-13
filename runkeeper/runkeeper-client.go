@@ -2,6 +2,7 @@ package runkeeper
 
 import (
 	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	"log"
 	"time"
 )
 
@@ -55,8 +56,10 @@ func (c RkClient) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivit
 }
 
 func (c RkClient) ValidateToken(token string) bool {
+	c.BearerToken = token
 	_, err := c.Client.GetUser()
 	if err != nil {
+		log.Printf("(Expected) error while validating token %s", token)
 		return false
 	}
 	return true
