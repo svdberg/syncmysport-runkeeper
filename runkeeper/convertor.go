@@ -1,10 +1,11 @@
 package runkeeper
 
 import (
-	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
-	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"log"
 	"time"
+
+	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
 const API = "API"

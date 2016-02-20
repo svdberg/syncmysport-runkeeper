@@ -2,11 +2,12 @@ package sync
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
 	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
-	"testing"
-	"time"
 )
 
 func TestTsAtStartOfDay(t *testing.T) {

@@ -1,10 +1,11 @@
 package strava
 
 import (
-	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
-	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"log"
 	"time"
+
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {

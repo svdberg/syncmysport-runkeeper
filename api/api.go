@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	mux "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
-	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
-	stv "github.com/svdberg/syncmysport-runkeeper/strava"
-	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	mux "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
+	stv "github.com/svdberg/syncmysport-runkeeper/strava"
+	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 )
 
 const startTime = -1 * time.Duration(1) * time.Hour * 24 * 365 //1 year ago

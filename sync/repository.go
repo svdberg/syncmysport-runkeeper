@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
 	"strings"
 	"time"
+
+	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 )
 
 //should come from config (file) somewhere...
@@ -47,6 +48,7 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 		return 0, errors.New("Error preparing UPDATE statement for Task")
 	}
 	defer stmtOut.Close()
+
 	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
 	if err != nil {
 		return 0, errors.New("Error executing the UPDATE statement for Task")
