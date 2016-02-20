@@ -1,0 +1,16 @@
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: docker
+    POSTGRES_USER: docker
+trigger:
+  build: .
+  command: dockerize -timeout 20s -wait tcp://db:5432 ../../bin/app
+  restart: always
+  ports:
+    - "8080:8080"
+  links:
+    - db
+  environment:
+    - DATABASE_URL=postgres://docker:docker@db:5432/docker
+    - CLEARDB_DATABASE_URL= #TODO. set this and create mysql image
