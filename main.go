@@ -2,14 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"os"
+	"strconv"
+	"time"
+
 	log "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	que "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bgentry/que-go"
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/jackc/pgx"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
-	"os"
-	"strconv"
-	"time"
 )
 
 const tsDelta = -45 //minutes
@@ -56,9 +57,22 @@ func main() {
 		port, DbConnectionString, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
 
 	dbURL := os.Getenv("DATABASE_URL")
-	pgxpool, qc, err = shared.Setup(dbURL)
-	if err != nil {
-		log.WithField("DATABASE_URL", dbURL).Fatal("Unable to setup queue / database")
+
+	success := false
+	i := 0
+	for i < 10 && !success {
+		pgxpool, qc, err = shared.Setup(dbURL)
+		if err != nil {
+			if i == 4 {
+				log.WithField("DATABASE_URL", dbURL).Fatal("Unable to setup queue / database")
+			} else {
+				log.Print("Waiting 1 second for retry. I = %d", i)
+				time.Sleep(1000 * time.Millisecond)
+				i++
+			}
+		} else {
+			success = true
+		}
 	}
 
 	defer pgxpool.Close()
