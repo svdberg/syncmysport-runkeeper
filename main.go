@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"os"
-	"strconv"
 	"time"
 
 	log "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -18,11 +17,6 @@ const tsDelta = -45 //minutes
 //CONFIG
 var (
 	DbConnectionString string
-	RkRedirectUri      string
-	RkSecret           string //needed for oauth
-	StvSecret          string //needed for oauth only
-	StvRedirectUri     string
-	Environment        string
 )
 
 //for queuing
@@ -34,30 +28,11 @@ var (
 func main() {
 	//Load config vars
 	var err error
-	portString := os.Getenv("PORT")
-
-	if portString == "" {
-		log.Print("$PORT must be set, falling back to 8100")
-		portString = "8100"
-	}
-	port, nerr := strconv.Atoi(portString)
-	if nerr != nil {
-		log.Print("Error converting $PORT to an int: %q - Using default", err)
-		port = 8100
-	}
 	DbConnectionString = os.Getenv("CLEARDB_DATABASE_URL")
-
-	RkSecret = os.Getenv("RUNKEEPER_SECRET")
-	if RkSecret == "" {
-		//fallback to load from file
-	}
-
-	Environment = os.Getenv("ENVIRONMENT")
-
 	dbURL := os.Getenv("DATABASE_URL")
 
-	log.Printf("Starting SyncMySport with config: Port: %d, MysqlDBString: %s, PostgresDBString: %s, RKSecret: %s, RKRedirect: %s, StvSecret: %s, StvRedirect: %s",
-		port, DbConnectionString, dbURL, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
+	log.Printf("Starting SyncMySport-trigger with config: MysqlDBString: %s, PostgresDBString: %s",
+		DbConnectionString, dbURL)
 
 	success := false
 	i := 0
