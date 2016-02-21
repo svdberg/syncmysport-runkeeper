@@ -43,3 +43,4 @@ web:
     - STRAVA_REDIRECT=http://www.syncmysport.com/exchange_token
     - STRAVA_SECRET=95d9a55f35d5f1e7ef97b31ccf977e8efd44c821
     - PORT=8080
+    - STATICPATH=/go/src/github.com/svdberg/syncmysport-runkeeper/api/static

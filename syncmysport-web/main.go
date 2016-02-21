@@ -1,10 +1,11 @@
 package main
 
 import (
-	api "github.com/svdberg/syncmysport-runkeeper/api"
 	"log"
 	"os"
 	"strconv"
+
+	api "github.com/svdberg/syncmysport-runkeeper/api"
 )
 
 //CONFIG
@@ -15,12 +16,20 @@ var (
 	StvSecret          string //needed for oauth only
 	StvRedirectUri     string
 	Environment        string
+	StaticPath         string
 )
 
 func main() {
 	//Load config vars
 	var err error
 	portString := os.Getenv("PORT")
+
+	staticPath := os.Getenv("STATICPATH")
+	if staticPath == "" {
+		StaticPath = "./api/static/" //Heroku default
+	} else {
+		StaticPath = staticPath
+	}
 
 	if portString == "" {
 		log.Print("$PORT must be set, falling back to 8100")
@@ -56,5 +65,5 @@ func main() {
 
 	//Start api
 	log.Print("Launching REST API")
-	api.Start(DbConnectionString, port, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri, Environment)
+	api.Start(DbConnectionString, port, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri, Environment, StaticPath)
 }

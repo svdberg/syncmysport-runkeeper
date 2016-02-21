@@ -27,10 +27,11 @@ var (
 	RedirectUriRk      string
 	RedirectUriStv     string
 	Environment        string
+	StaticPath         string
 	authenticator      *strava.OAuthAuthenticator
 )
 
-func Start(connString string, port int, secretRk string, redirectRk string, secretStv string, redirectStv string, env string) {
+func Start(connString string, port int, secretRk string, redirectRk string, secretStv string, redirectStv string, env string, staticPath string) {
 	DbConnectionString = connString
 	RkSecret = secretRk
 	RedirectUriRk = redirectRk
@@ -38,6 +39,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	StvSecret = secretStv
 	portString := fmt.Sprintf(":%d", port)
 	Environment = env
+	StaticPath = staticPath
 
 	strava.ClientId = 9667
 	strava.ClientSecret = StvSecret
@@ -53,7 +55,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
 
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/static/")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticPath)))
 	log.Fatal(http.ListenAndServe(portString, router))
 }
 
