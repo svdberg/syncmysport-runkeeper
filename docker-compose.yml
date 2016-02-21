@@ -3,14 +3,22 @@ db:
   environment:
     POSTGRES_PASSWORD: docker
     POSTGRES_USER: docker
+mysql:
+  image: mysql:5.6
+  environment:
+    - MYSQL_PASSWORD=docker
+    - MYSQL_USER=docker
+    - MYSQL_DATABASE=docker
+    - MYSQL_ROOT_PASSWORD=mysecret
 trigger:
   build: .
-  command: dockerize -timeout 20s -wait tcp://db:5432 ../../bin/app
+  command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 ../../bin/app
   restart: always
   ports:
     - "8080:8080"
   links:
     - db
+    - mysql
   environment:
     - DATABASE_URL=postgres://docker:docker@db:5432/docker
-    - CLEARDB_DATABASE_URL= #TODO. set this and create mysql image
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
