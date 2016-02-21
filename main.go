@@ -38,6 +38,7 @@ func main() {
 
 	if portString == "" {
 		log.Print("$PORT must be set, falling back to 8100")
+		portString = "8100"
 	}
 	port, nerr := strconv.Atoi(portString)
 	if nerr != nil {
@@ -53,10 +54,10 @@ func main() {
 
 	Environment = os.Getenv("ENVIRONMENT")
 
-	log.Printf("Starting SyncMySport with config: Port: %d, DBString: %s, RKSecret: %s, RKRedirect: %s, StvSecret: %s, StvRedirect: %s",
-		port, DbConnectionString, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
-
 	dbURL := os.Getenv("DATABASE_URL")
+
+	log.Printf("Starting SyncMySport with config: Port: %d, MysqlDBString: %s, PostgresDBString: %s, RKSecret: %s, RKRedirect: %s, StvSecret: %s, StvRedirect: %s",
+		port, DbConnectionString, dbURL, RkSecret, RkRedirectUri, StvSecret, StvRedirectUri)
 
 	success := false
 	i := 0

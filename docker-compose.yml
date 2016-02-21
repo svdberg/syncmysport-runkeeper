@@ -12,7 +12,7 @@ mysql:
     - MYSQL_ROOT_PASSWORD=mysecret
 trigger:
   build: .
-  command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 ../../bin/app
+  command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 cron && tail -f /var/log/cron.log
   links:
     - db
     - mysql
