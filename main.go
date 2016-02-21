@@ -104,7 +104,10 @@ func queueSyncTask(job sync.SyncTask) error {
  */
 func startSync() {
 	repo := sync.CreateSyncDbRepo(DbConnectionString)
-	repo.CreateTableIfNotExist()
+	err := repo.CreateTableIfNotExist()
+	if err != nil {
+		log.Fatal("Error checking or creating the Sync database table: %s", err)
+	}
 
 	allSyncs, err := repo.RetrieveAllSyncTasks()
 	log.Printf("Retrieved %d sync tasks", len(allSyncs))
