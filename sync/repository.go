@@ -50,6 +50,7 @@ func (db DbSync) CreateTableIfNotExist() error {
     rk_key VARCHAR(64) NULL DEFAULT NULL,
     stv_key VARCHAR(64) NULL DEFAULT NULL,
     last_succesfull_retrieve DATETIME NULL DEFAULT NULL,
+		environment varchar(36) NOT NULL DEFAULT "Prod",
     PRIMARY KEY (uid)
   );`)
 	if err != nil {
