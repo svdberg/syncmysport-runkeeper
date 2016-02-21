@@ -13,12 +13,33 @@ mysql:
 trigger:
   build: .
   command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 ../../bin/app
-  restart: always
-  ports:
-    - "8080:8080"
   links:
     - db
     - mysql
   environment:
     - DATABASE_URL=postgres://docker:docker@db:5432/docker
     - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+worker:
+  build: syncmysport-worker/.
+  command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 ../../bin/app
+  links:
+    - db
+    - mysql
+  environment:
+    - DATABASE_URL=postgres://docker:docker@db:5432/docker
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+web:
+  build: syncmysport-web/.
+  command: dockerize -timeout 20s -wait tcp://mysql:3306 ../../bin/app
+  ports:
+    - "8080:8080"
+  links:
+    - mysql
+  environment:
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+    - ENVIRONMENT=Prod
+    - RUNKEEPER_REDIRECT=http://www.syncmysport.com/code
+    - RUNKEEPER_SECRET=76f5b6465f3b4c5f8aec9a29574d787d
+    - STRAVA_REDIRECT=http://www.syncmysport.com/exchange_token
+    - STRAVA_SECRET=95d9a55f35d5f1e7ef97b31ccf977e8efd44c821
+    - PORT=8080
