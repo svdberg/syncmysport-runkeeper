@@ -55,6 +55,7 @@ func (db DbSync) CreateTableIfNotExist() error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Create table sync\n")
 	return nil
 }
 
