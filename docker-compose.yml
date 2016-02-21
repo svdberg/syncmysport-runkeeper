@@ -39,8 +39,8 @@ web:
     - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
     - ENVIRONMENT=Prod
     - RUNKEEPER_REDIRECT=http://www.syncmysport.com/code
-    - RUNKEEPER_SECRET=76f5b6465f3b4c5f8aec9a29574d787d
+    - RUNKEEPER_SECRET=abcd
     - STRAVA_REDIRECT=http://www.syncmysport.com/exchange_token
-    - STRAVA_SECRET=95d9a55f35d5f1e7ef97b31ccf977e8efd44c821
+    - STRAVA_SECRET=abcde
     - PORT=8080
     - STATICPATH=/go/src/github.com/svdberg/syncmysport-runkeeper/api/static
