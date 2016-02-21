@@ -19,6 +19,7 @@ type DbSyncInt interface {
 	StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error)
 	RetrieveAllSyncTasks() ([]SyncTask, error)
 	FindSyncTaskByToken(token string) (*SyncTask, error)
+	CreateTableIfNotExist() error
 }
 
 type DbSync struct {
@@ -34,6 +35,27 @@ func CreateSyncDbRepo(dbString string) DbSyncInt {
 	} else {
 		return &DbSync{default_connection_string}
 	}
+}
+
+func (db DbSync) CreateTableIfNotExist() error {
+	dbCon, err := sql.Open("mysql", db.ConnectionString)
+	if err != nil {
+		return err
+	}
+	defer dbCon.Close()
+
+	_, err = dbCon.Exec(`
+	CREATE TABLE IF NOT EXISTS 'sync' (
+    'uid' INT(10) NOT NULL AUTO_INCREMENT,
+    'rk_key' VARCHAR(64) NULL DEFAULT NULL,
+    'stv_key' VARCHAR(64) NULL DEFAULT NULL,
+    'last_succesfull_retrieve' DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY ('uid')
+  );`)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
