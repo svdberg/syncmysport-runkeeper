@@ -1,5 +1,3 @@
-DATABASE_URL=XXXXXXX
-CLEARDB_DATABASE_URL=YYYYYYY
-*/15 * * * * /go/bin/app >> /var/log/cron.log 2>&1
+*/5 * * * * root env - `cat /env.txt` /go/bin/app >> /var/log/cron.log 2>&1
 # An empty line is required at the end of this file for a valid cron file.
 
