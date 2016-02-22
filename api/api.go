@@ -52,6 +52,12 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 
 	log.Printf("callback url: %s", authenticator.AuthorizationURL("state1", strava.Permissions.Public, true))
 
+	db := sync.CreateSyncDbRepo(DbConnectionString)
+	err := db.CreateTableIfNotExist()
+	if err != nil {
+		log.Fatal("Error checking or creating the Sync database table: %s", err)
+	}
+
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
 
