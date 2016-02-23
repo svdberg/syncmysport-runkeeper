@@ -64,6 +64,6 @@ var routes = Routes{
 		"RunkeeperDeauthorize",
 		"POST",
 		"/rkdeauth",
-		TokenDisassociate,
+		RunkeeperDeauthorize,
 	},
 }
