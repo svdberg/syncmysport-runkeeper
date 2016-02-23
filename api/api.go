@@ -212,6 +212,33 @@ func SyncTaskIndex(response http.ResponseWriter, request *http.Request) {
 func SyncTaskShow(response http.ResponseWriter, request *http.Request) {
 }
 
+func RunkeeperDeauthorize(response http.ResponseWriter, request *http.Request) {
+	body, err := ioutil.ReadAll(io.LimitReader(request.Body, 1048576))
+	if err != nil {
+		//malformed request
+		response.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	responseJson := make(map[string]string)
+	json.Unmarshal(body, &responseJson)
+
+	token := responseJson["access_token"]
+
+	db := sync.CreateSyncDbRepo(DbConnectionString)
+	task, err := db.FindSyncTaskByToken(token)
+	if err != nil {
+		response.WriteHeader(http.StatusAccepted)
+		return
+	}
+	task.RunkeeperToken = ""
+	_, err = db.UpdateSyncTask(*task)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	response.WriteHeader(http.StatusAccepted)
+}
+
 func nowMinusOneHourInUnix() int {
 	now := time.Now().UTC()
 	nowMinusOneHour := now.Add(time.Duration(1) * time.Hour)

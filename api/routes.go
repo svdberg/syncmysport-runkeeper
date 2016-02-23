@@ -60,4 +60,10 @@ var routes = Routes{
 		"/token/{token}",
 		TokenDisassociate,
 	},
+	Route{
+		"RunkeeperDeauthorize",
+		"POST",
+		"/rkdeauth",
+		TokenDisassociate,
+	},
 }
