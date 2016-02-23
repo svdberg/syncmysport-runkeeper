@@ -23,6 +23,7 @@ Building and Running the app
 The application is fully dockerized. To run the app locally on your system do the following:
 
 - Install docker, and docker-machine if on a mac (https://www.docker.com/)
+- Configure your secrets in `docker-compose.yml` for Strava and Runkeeper
 - Run:
 ```shell
 #> docker-compose build --no-cache
