@@ -17,6 +17,21 @@ TODO
 ~~- Bootstap to make it pretty~~
 ~~- Patch the freakin TZ troubles in the c9s runkeeper lib~~
 
+Building and Running the app
+----------------------------
+
+The application is fully dockerized. To run the app locally on your system do the following:
+
+- Install docker, and docker-machine if on a mac (https://www.docker.com/)
+- Run:
+```shell
+#> docker-compose build --no-cache
+#> docker-compose up
+```
+- Visit a browser on http://localhost:8080/ or on http://$(docker-machine ip):8080/
+
+All done!
+
 Website
 -------
 
