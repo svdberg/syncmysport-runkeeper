@@ -4,7 +4,7 @@ db:
     POSTGRES_PASSWORD: docker
     POSTGRES_USER: docker
 mysql:
-  image: mysql:5.6
+  image: mariadb
   environment:
     - MYSQL_PASSWORD=docker
     - MYSQL_USER=docker
