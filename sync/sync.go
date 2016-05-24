@@ -54,7 +54,8 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		//get associated Streams
 		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
 		if err != nil {
-			log.Fatal("Error while retrieving time series from Strava: %s", err)
+			log.Printf("Error while retrieving time series from Strava: %s", err)
+			return 0, 0, err
 		}
 		locStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "GPS")
 		hrStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
@@ -76,7 +77,7 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		rkActivities.Add(*rk.ConvertToActivity(&item))
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("%s", err)
 	}
 	log.Printf("Got %d items from RunKeeper", rkActivities.NumElements())
 	for i := 0; i < rkActivities.NumElements(); i++ {
@@ -104,7 +105,8 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		}
 
 		if err != nil {
-			log.Fatal("Something failed during the write to Runkeeper: %s", err)
+			log.Printf("Something failed during the write to Runkeeper: %s", err)
+			return itemsToSyncToRk.NumElements(), totalItemsCreated, err
 		}
 		if uri != "" {
 			log.Printf("URI of activity: %s", uri)
