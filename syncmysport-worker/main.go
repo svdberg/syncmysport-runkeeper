@@ -36,7 +36,7 @@ func syncTaskJob(j *que.Job) error {
 	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
 	_, _, err = synctask.Sync(stvClientImpl, rkClientImpl)
 	if err != nil {
-		log.WithField("args", string(j.Args)).WithField("QueId", string(j.ID)).Error("Error while syncing synctask.")
+		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
 		return err
 	}
 
