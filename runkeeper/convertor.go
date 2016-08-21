@@ -12,7 +12,11 @@ const API = "API"
 
 func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity := dm.CreateActivity()
-	returnActivity.Type = rkActivity.Type
+	if rkActivity.Type == "Other" {
+		returnActivity.Type = "Activity"
+	} else {
+		returnActivity.Type = rkActivity.Type
+	}
 
 	//RK time is 'Local'
 	correctedTime := time.Time(rkActivity.StartTime).Add(time.Duration(rkActivity.UtcOffset) * time.Hour)
@@ -38,6 +42,33 @@ func ConvertToRkActivity(activity *dm.Activity) *runkeeper.FitnessActivityNew {
 	rkActivity := runkeeper.CreateNewFitnessActivity(activity.Name, float64(activity.Duration))
 
 	rkActivity.Type = activity.Type
+	//runkeeper only nows the following types:
+	//Running, Cycling, Mountain Biking, Walking,
+	//Hiking, Downhill Skiing, Cross-Country Skiing,
+	//Snowboarding, Skating, Swimming, Wheelchair, Rowing, Elliptical, Other
+	//
+	//check if Type is one of these, otherwise Other.
+	rkKnownTypes := map[string]string{
+		"Running":              "Running",
+		"Cycling":              "Cycling",
+		"Mountain Biking":      "Mountain Biking",
+		"Walking":              "Walking",
+		"Hiking":               "Hiking",
+		"Downhill Skiing":      "Downhill Skiing",
+		"Cross-Country Skiing": "Cross-Country Skiing",
+		"Snowboarding":         "Snowboarding",
+		"Skating":              "Skating",
+		"Swimming":             "Swimming",
+		"Wheelchair":           "Wheelchair",
+		"Rowing":               "Rowing",
+		"Elliptical":           "Elliptical",
+		"Other":                "Other"}
+
+	_, ok := rkKnownTypes[activity.Type]
+	if !ok {
+		rkActivity.Type = "Other"
+	}
+
 	//runkeeper times are in local timezones, so covert back to the local time
 	rkLocalLocation := time.FixedZone("rkZone", activity.UtcOffSet*60*60)
 	rkActivity.StartTime = runkeeper.Time(time.Unix(int64(activity.StartTime), 0).In(rkLocalLocation))

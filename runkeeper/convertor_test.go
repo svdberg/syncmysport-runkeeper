@@ -2,10 +2,11 @@ package runkeeper
 
 import (
 	"fmt"
-	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
-	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"testing"
 	"time"
+
+	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
 func TestFromRKConvertor(t *testing.T) {
@@ -38,5 +39,26 @@ func TestFromRKConvertor(t *testing.T) {
 	}
 }
 
+func TestOtherActivityType(t *testing.T) {
+	rkActivity := runkeeper.FitnessActivity{}
+	rkActivity.Type = "Other"
+
+	expectedActivity := dm.CreateActivity()
+	expectedActivity.Type = "Activity"
+
+	activity := ConvertToActivity(&rkActivity)
+	if activity.Type != expectedActivity.Type {
+		t.Error(fmt.Sprintf("Type %s of activity should match %s", activity.Type, expectedActivity.Type))
+	}
+}
+
 func TestToRKConvertor(t *testing.T) {
+	activity := dm.CreateActivity()
+	activity.Type = "Activity"
+
+	rkActivity := ConvertToRkActivity(activity)
+
+	if rkActivity.Type != "Other" {
+		t.Error(fmt.Sprintf("Type %s of activity should match \"Other\"", rkActivity.Type))
+	}
 }
