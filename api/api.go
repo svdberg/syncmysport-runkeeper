@@ -74,7 +74,7 @@ func ActiveUsersShow(response http.ResponseWriter, request *http.Request) {
 
 	response.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	//return as json
-	response.Write([]byte(fmt.Sprint("{\"active-users\" : %d }", userCount)))
+	response.Write([]byte(fmt.Sprintf("{\"active-users\" : %d }", userCount)))
 }
 
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
