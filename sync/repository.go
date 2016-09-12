@@ -20,6 +20,7 @@ type DbSyncInt interface {
 	RetrieveAllSyncTasks() ([]SyncTask, error)
 	FindSyncTaskByToken(token string) (*SyncTask, error)
 	CreateTableIfNotExist() error
+	CountActiveUsers() (int, error)
 }
 
 type DbSync struct {
@@ -58,6 +59,26 @@ func (db DbSync) CreateTableIfNotExist() error {
 	}
 	log.Printf("Create table sync\n")
 	return nil
+}
+
+func (db DbSync) CountActiveUsers() (int, error) {
+	dbCon, _ := sql.Open("mysql", db.ConnectionString)
+	defer dbCon.Close()
+	rows, err := dbCon.Query("SELECT COUNT(*) FROM sync WHERE rk_key != '' AND rk_key IS NOT NULL AND stv_key != '' AND stv_key IS NOT NULL")
+
+	if err != nil {
+		return 0, err
+	}
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			return count, err
+		}
+	}
+	defer rows.Close()
+
+	return count, nil
 }
 
 func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {

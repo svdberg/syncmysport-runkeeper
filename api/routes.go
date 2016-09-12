@@ -31,6 +31,12 @@ func NewRouter() *mux.Router {
 
 var routes = Routes{
 	Route{
+		"ActiveUsersShow",
+		"GET",
+		"/users/count",
+		ActiveUsersShow,
+	},
+	Route{
 		"RKOAuthCallback",
 		"GET",
 		"/code",

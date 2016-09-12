@@ -60,9 +60,21 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
-
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticPath)))
+
 	log.Fatal(http.ListenAndServe(portString, router))
+}
+
+func ActiveUsersShow(response http.ResponseWriter, request *http.Request) {
+	db := sync.CreateSyncDbRepo(DbConnectionString)
+	userCount, err := db.CountActiveUsers()
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+
+	response.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	//return as json
+	response.Write([]byte(fmt.Sprint("{\"active-users\" : %d }", userCount)))
 }
 
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
