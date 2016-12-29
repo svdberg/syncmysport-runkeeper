@@ -11,7 +11,6 @@ import (
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
 	stvActivity := dm.CreateActivity()
 	stvActivity.StartTime = int(stravaActivity.StartDate.Unix()) //UTC date
-	//stvActivity.StartTime = int(stravaActivity.StartDateLocal.Unix()) //UTC +1 Date (local)
 	log.Printf("STV Local date: %s, start date: %s, unix: %d", stravaActivity.StartDateLocal, stravaActivity.StartDate, stravaActivity.StartDate.Unix())
 	stvActivity.Duration = stravaActivity.ElapsedTime
 	stvActivity.Name = stravaActivity.Name
@@ -24,7 +23,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		_, offsetInSeconds := timeInTZ.Zone()
 		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
 	} else {
-		log.Print("Error reading location from strava Activity: %s", err)
+		log.Printf("Warning: reading location from strava Activity failed with: %s", err)
 	}
 
 	if stravaActivity.Type.String() == "Run" {
@@ -77,8 +76,8 @@ func mergeTimeAndLocation(timeStream *stravalib.IntegerStream, locStream *strava
 func convertHeartRateTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.HeartRate {
 	result := make([]dm.HeartRate, len(sourceStream.HeartRate.Data))
 	for index, hr := range sourceStream.HeartRate.Data {
-		time := timeStream.Time.Data[index]
-		result[index] = dm.HeartRate{float64(time), hr}
+		hrTime := timeStream.Time.Data[index]
+		result[index] = dm.HeartRate{float64(hrTime), hr}
 	}
 	return result
 }

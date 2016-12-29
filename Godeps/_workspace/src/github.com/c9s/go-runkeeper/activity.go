@@ -87,12 +87,13 @@ type FitnessActivity struct {
 	Notes         string  `json:"notes"`
 
 	// Details
-	Climb         float64 `json:"climb"`
-	Comment       string  `json:"comments"`       // "comments" : "/fitnessActivities/318671963/comments",
-	UserID        int64   `json:"userID"`         // "userID" : 24207205,
-	IsLive        bool    `json:"is_live"`        // "is_live" : false,
-	Equipment     string  `json:"equipment"`      // "equipment" : "None",
-	TotalCalories float64 `json:"total_calories"` // "total_calories" : 22,
+	Climb            float64 `json:"climb"`
+	Comment          string  `json:"comments"`           // "comments" : "/fitnessActivities/318671963/comments",
+	UserID           int64   `json:"userID"`             // "userID" : 24207205,
+	IsLive           bool    `json:"is_live"`            // "is_live" : false,
+	Equipment        string  `json:"equipment"`          // "equipment" : "None",
+	TotalCalories    float64 `json:"total_calories"`     // "total_calories" : 22,
+	AverageHeartRate int     `json:"average_heart_rate"` // "average_heart_rate" : 122,
 
 	Share    string `json:"share"`     // "share" : "Everyone",
 	ShareMap string `json:"share_map"` // "share_map" : "Friends",

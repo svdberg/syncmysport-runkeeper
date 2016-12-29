@@ -25,10 +25,10 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity.UtcOffSet = rkActivity.UtcOffset
 	returnActivity.Duration = int(rkActivity.Duration)
 	returnActivity.Name = rkActivity.Notes
-	returnActivity.Notes = "" //rkActivity.Comment //hmm dunno
+	returnActivity.Notes = rkActivity.Notes
 	returnActivity.Private = false
 	returnActivity.Stationary = rkActivity.HasMap
-	returnActivity.AverageHeartRate = 0 //rkActivity.AverageHeartRate
+	returnActivity.AverageHeartRate = rkActivity.AverageHeartRate
 	returnActivity.Calories = rkActivity.TotalCalories
 	returnActivity.Distance = rkActivity.TotalDistance
 	returnActivity.GPS = convertFromPath(rkActivity.Path)
