@@ -52,8 +52,7 @@ func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.St
 
 	result := make([]dm.GPS, len(sourceStream.Location.Data))
 	for index, gpsTime := range merged {
-		alt := 0.0
-		result[index] = dm.GPS{float64(gpsTime.Time), alt, gpsTime.Long, gpsTime.Lat}
+		result[index] = dm.GPS{float64(gpsTime.Time), gpsTime.Alt, gpsTime.Long, gpsTime.Lat}
 	}
 	return result
 }
