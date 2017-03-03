@@ -8,7 +8,7 @@ import (
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
-func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet) *dm.Activity {
+func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet, altTrack *stravalib.StreamSet) *dm.Activity {
 	stvActivity := dm.CreateActivity()
 	stvActivity.StartTime = int(stravaActivity.StartDate.Unix()) //UTC date
 	log.Printf("STV Local date: %s, start date: %s, unix: %d", stravaActivity.StartDateLocal, stravaActivity.StartDate, stravaActivity.StartDate.Unix())
@@ -38,7 +38,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	}
 
 	if gpsTrack != nil && gpsTrack.Location != nil && timeStream != nil {
-		stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream)
+		stvActivity.GPS = convertGPSTrack(gpsTrack, timeStream, altTrack)
 	}
 	if hrTrack != nil && hrTrack.HeartRate != nil && timeStream != nil {
 		stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
@@ -46,9 +46,9 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	return stvActivity
 }
 
-func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet) []dm.GPS {
+func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet, elevationStream *stravalib.StreamSet) []dm.GPS {
 	//merge the time stream + the location stream
-	merged := mergeTimeAndLocation(timeStream.Time, sourceStream.Location)
+	merged := mergeTimeAndLocation(timeStream.Time, sourceStream.Location, elevationStream.Elevation)
 
 	result := make([]dm.GPS, len(sourceStream.Location.Data))
 	for index, gpsTime := range merged {
@@ -62,13 +62,15 @@ type GPSTime struct {
 	Time int
 	Lat  float64
 	Long float64
+	Alt  float64
 }
 
-func mergeTimeAndLocation(timeStream *stravalib.IntegerStream, locStream *stravalib.LocationStream) []GPSTime {
+func mergeTimeAndLocation(timeStream *stravalib.IntegerStream, locStream *stravalib.LocationStream, altStream *stravalib.DecimalStream) []GPSTime {
 	merged := make([]GPSTime, len(timeStream.Data))
 	for i, t := range timeStream.Data {
 		latLong := locStream.Data[i]
-		merged[i] = GPSTime{t, latLong[0], latLong[1]}
+		alt := altStream.Data[i]
+		merged[i] = GPSTime{t, latLong[0], latLong[1], alt}
 	}
 	return merged
 }

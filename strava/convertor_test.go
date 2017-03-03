@@ -23,7 +23,7 @@ func TestConvertor(t *testing.T) {
 	stvActivity.Description = notes
 	stvActivity.Type = stravalib.ActivityTypes.Run
 
-	activity := ConvertToActivity(&stvActivity, nil, nil, nil)
+	activity := ConvertToActivity(&stvActivity, nil, nil, nil, nil)
 	resultActivity := dm.CreateActivity()
 	resultActivity.StartTime = int(theTime.Unix())
 	resultActivity.Duration = duration

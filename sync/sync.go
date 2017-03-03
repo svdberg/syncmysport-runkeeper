@@ -59,8 +59,9 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		}
 		locStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "GPS")
 		hrStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
+		altStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Altitude")
 
-		stvDetailedActivities.Add(*stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream))
+		stvDetailedActivities.Add(*stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream, altStream))
 	}
 	log.Printf("Got %d items from Strava", stvDetailedActivities.NumElements())
 	for i := 0; i < stvDetailedActivities.NumElements(); i++ {

@@ -49,6 +49,8 @@ func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) 
 		types = append(types, stravalib.StreamTypes.HeartRate)
 	} else if streamType == "Time" {
 		types = append(types, stravalib.StreamTypes.Time)
+	} else if streamType == "Altitude" {
+		types = append(types, stravalib.StreamTypes.Elevation)
 	}
 	stream, err := service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
 	if err != nil && strings.Contains(err.Error(), "Record Not Found") {
