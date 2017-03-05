@@ -97,7 +97,7 @@ func TestBasicSync(t *testing.T) {
 	stToken := "ghijkz"
 	lastSeen := int(time.Now().Unix())
 	syncTask := CreateSyncTask(rkToken, stToken, lastSeen, "Prod")
-	syncTask.Sync(stubStvImpl, stubRKImpl)
+	syncTask.Sync(stubStvImpl, stubRKImpl, nil)
 
 	expectedActivity := runkeeper.FitnessActivityNew{}
 	expectedActivity.Type = "Running"

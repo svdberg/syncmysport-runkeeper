@@ -37,8 +37,10 @@ func init() {
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
+	var txn newrelic.Transaction
 	if app != nil {
-		txn := app.StartTransaction("sync-task", nil, nil)
+		txn = app.StartTransaction("sync-task", nil, nil)
+		txn.SetName("sync job")
 		defer txn.End()
 	}
 
@@ -53,10 +55,13 @@ func syncTaskJob(j *que.Job) error {
 
 	stvClientImpl := stv.CreateStravaClient(synctask.StravaToken)
 	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
-	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl)
+	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl, txn)
 	if err != nil {
 		if app != nil {
 			app.RecordCustomEvent("sync_error_event", map[string]interface{}{"error": err})
+		}
+		if txn != nil {
+			txn.NoticeError(err)
 		}
 		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
 		return err

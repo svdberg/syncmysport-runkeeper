@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
@@ -38,11 +39,15 @@ func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int, environment
 /*
  * return the Total difference and the number of Activites created
  */
-func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCientInt) (int, int, error) {
+func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCientInt, txn newrelic.Transaction) (int, int, error) {
 	//get activities from strava
 	//normalize time to the start of the day, because Runkeeper only supports days as offset, not timestamps
 	tsOfStartOfDay := calculateTsAtStartOfDay(st.LastSeenTimestamp)
+	segment := newrelic.Segment{}
+	segment.Name = "strava-retrieve-activities"
+	segment.StartTime = newrelic.StartSegmentNow(txn)
 	activities, err := stvClient.GetSTVActivitiesSince(tsOfStartOfDay)
+	segment.End()
 	if err != nil {
 		log.Printf("Error retrieving Strava activitites since %s, aborting this run", st.LastSeenTimestamp)
 		return 0, 0, err
@@ -69,8 +74,12 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	}
 
 	//get activities from runkeeper
+	segment = newrelic.Segment{}
+	segment.Name = "runkeeper-retrieve-activities"
+	segment.StartTime = newrelic.StartSegmentNow(txn)
 	rkActivitiesOverview, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
 	rkDetailActivities := rkClient.EnrichRKActivities(rkActivitiesOverview)
+	segment.End()
 	//log.Printf("rk detail activities: %s", rkDetailActivities)
 
 	rkActivities := dm.NewActivitySet()
@@ -90,6 +99,9 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	log.Printf("Difference between Runkeeper and Strava is %d items", itemsToSyncToRk.NumElements())
 
 	//write to runkeeper
+	segment = newrelic.Segment{}
+	segment.Name = "runkeeper-write-activities"
+	segment.StartTime = newrelic.StartSegmentNow(txn)
 	totalItemsCreated := 0
 	for i := 0; i < itemsToSyncToRk.NumElements(); i++ {
 		log.Printf("Now storing item %s to RunKeeper", itemsToSyncToRk.Get(i))
@@ -114,6 +126,7 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 			totalItemsCreated++
 		}
 	}
+	segment.End()
 	return itemsToSyncToRk.NumElements(), totalItemsCreated, nil
 }
 
