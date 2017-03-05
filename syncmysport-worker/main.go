@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/newrelic/go-agent"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"

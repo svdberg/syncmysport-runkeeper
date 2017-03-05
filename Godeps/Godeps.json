@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/svdberg/syncmysport-runkeeper",
-	"GoVersion": "go1.4",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
 	],
@@ -28,17 +29,44 @@
 			"Rev": "acb04ffadecc7aecbbdcac969063d05ad017ab71"
 		},
 		{
-			"ImportPath": "github.com/gorilla/context",
-			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
-		},
-		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
+			"Comment": "v1.3.0-5-g599cba5",
+			"Rev": "599cba5e7b6137d46ddf58fb1765f5d928e69604"
 		},
 		{
 			"ImportPath": "github.com/jackc/pgx",
 			"Comment": "v2.7.1-20-g9f9a977",
 			"Rev": "9f9a9779ac794e885f6fbb04935724f03149f092"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/jsonx",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/logger",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/sysinfo",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/utilization",
+			"Comment": "v1.7.0",
+			"Rev": "7c6c920d222b18632f03b12c3b594df816eab6d0"
 		},
 		{
 			"ImportPath": "github.com/strava/go.strava",
