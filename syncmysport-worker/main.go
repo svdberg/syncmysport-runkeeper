@@ -37,8 +37,10 @@ func init() {
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
-	txn := app.StartTransaction("sync-task", nil, nil)
-	defer txn.End()
+	if app != nil {
+		txn := app.StartTransaction("sync-task", nil, nil)
+		defer txn.End()
+	}
 
 	var synctask sync.SyncTask
 	err := json.Unmarshal(j.Args, &synctask)
@@ -51,10 +53,18 @@ func syncTaskJob(j *que.Job) error {
 
 	stvClientImpl := stv.CreateStravaClient(synctask.StravaToken)
 	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
-	_, _, err = synctask.Sync(stvClientImpl, rkClientImpl)
+	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl)
 	if err != nil {
+		if app != nil {
+			app.RecordCustomEvent("sync_error_event", map[string]interface{}{"error": err})
+		}
 		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
 		return err
+	}
+	if app != nil {
+		app.RecordCustomEvent("sync_items_created", map[string]interface{}{
+			"rk-items-created": itemsCreatedRk,
+			"total-items":      totalItems})
 	}
 
 	j.Delete()
