@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/newrelic/go-agent"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
@@ -19,10 +20,26 @@ import (
 var (
 	qc      *que.Client
 	pgxpool *pgx.ConnPool
+	app     newrelic.Application
 )
+
+func init() {
+	key := os.Getenv("NEW_RELIC_KEY")
+	if key != "" {
+		config := newrelic.NewConfig("SyncMySport-worker", key)
+		var err error
+		app, err = newrelic.NewApplication(config)
+		if err != nil {
+			log.Info("Error creating New Relic app instance, continuing...")
+		}
+	}
+}
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
+	txn := app.StartTransaction("sync-task", nil, nil)
+	defer txn.End()
+
 	var synctask sync.SyncTask
 	err := json.Unmarshal(j.Args, &synctask)
 	if err != nil {
