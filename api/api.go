@@ -60,7 +60,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 
 	router := NewRouter()
 	router.Methods("GET").Path("/exchange_token").Name("STVOAuthCallback").Handler(authenticator.HandlerFunc(oAuthSuccess, oAuthFailure))
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticPath)))
+	router.PathPrefix("/").Handler(NewHttpsRedirectFileHandler(http.Dir(StaticPath)))
 
 	log.Fatal(http.ListenAndServe(portString, router))
 }
