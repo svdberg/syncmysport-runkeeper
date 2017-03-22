@@ -131,7 +131,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		}
 	}
 	//redirect back to connect
-	http.Redirect(w, r, "http://www.syncmysport.com/connect.html", 303) //replace by env var
+	http.Redirect(w, r, "https://www.syncmysport.com/connect.html", 303) //replace by env var
 }
 
 func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
@@ -171,7 +171,7 @@ func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	cookie.Domain = "www.syncmysport.com"
 	http.SetCookie(response, cookie)
 
-	http.Redirect(response, request, "http://www.syncmysport.com/connect.html", 303)
+	http.Redirect(response, request, "https://www.syncmysport.com/connect.html", 303)
 }
 
 func ObtainBearerToken(code string, stvToken string) (*sync.SyncTask, error) {
