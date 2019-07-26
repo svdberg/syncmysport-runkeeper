@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	latlong "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bradfitz/latlong"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	latlong "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bradfitz/latlong"
 )
 
 const (
@@ -178,7 +179,6 @@ func (self *Client) GetFitnessActivity(activityUri string, userParams *Params) (
 	//and store the UTC offset.
 	activitiesLocation := calculateLocationOfActivity(&activity)
 	writeTimeOffsetFromUTC(&activity, activitiesLocation)
-	correctTimeForOffsetFromUTC(&activity)
 	return &activity, nil
 }
 
@@ -205,6 +205,7 @@ func calculateLocationOfActivity(activity *FitnessActivity) *time.Location {
 		timeZone := latlong.LookupZoneName(latLong.Latitude, latLong.Longitude)
 		location, err := time.LoadLocation(timeZone)
 		if err != nil {
+			fmt.Printf("Error while getting location from activity for TZ: %e", err)
 			return time.UTC
 		}
 		return location

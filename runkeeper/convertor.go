@@ -34,7 +34,7 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity.GPS = convertFromPath(rkActivity.Path)
 	returnActivity.HeartRate = convertFromHR(rkActivity.HeartRate)
 
-	//log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
+	log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
 	return returnActivity
 }
 
