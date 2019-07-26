@@ -233,12 +233,12 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 		return nil, errors.New("no streamtypes requested")
 	}
 
-	types := fmt.Sprintf("?keys=%s", string(c.types[0]))
+	types := string(c.types[0])
 	for i := 1; i < len(c.types); i++ {
 		types += "," + string(c.types[i])
 	}
 
-	path := fmt.Sprintf("/%s/%d/streams%s", source, c.id, types)
+	path := fmt.Sprintf("/%s/%d/streams/%s", source, c.id, types)
 	data, err := c.service.client.run("GET", path, c.ops)
 
 	if err != nil {
