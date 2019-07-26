@@ -102,6 +102,7 @@ func (client *Client) run(method, path string, params map[string]interface{}) ([
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	} else {
+		fmt.Prinf("%s", basePath+path+"?"+values.Encode())
 		req, err = http.NewRequest(method, basePath+path+"?"+values.Encode(), nil)
 		if err != nil {
 			return nil, err
