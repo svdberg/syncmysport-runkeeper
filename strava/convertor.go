@@ -23,7 +23,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		_, offsetInSeconds := timeInTZ.Zone()
 		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
 	} else {
-		log.Printf("Warning: reading location from strava Activity failed with: %s", err)
+		log.Printf("Warning: reading location from strava Activity failed with: %e", err)
 	}
 
 	if stravaActivity.Type.String() == "Run" {
