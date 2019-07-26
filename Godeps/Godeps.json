@@ -70,7 +70,7 @@
 		},
 		{
 			"ImportPath": "github.com/strava/go.strava",
-			"Rev": "2441e8ba39f75e3608dbdf2154de95512026b44c"
+			"Rev": "f5c7cee1038b80d25e3d262208d295c10ca2ac4b"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
