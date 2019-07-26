@@ -219,6 +219,7 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 	switch c.service.parentType {
 	case types.Activity:
 		source = "activities"
+		c.ops["key_by_type"] = "true"
 	case types.Segment:
 		source = "segments"
 	case types.SegmentEffort:
@@ -239,7 +240,6 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 	}
 
 	c.ops["keys"] = types
-	c.ops["key_by_type"] = "true"
 
 	path := fmt.Sprintf("/%s/%d/streams", source, c.id)
 	data, err := c.service.client.run("GET", path, c.ops)
