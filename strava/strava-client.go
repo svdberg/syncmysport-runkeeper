@@ -2,8 +2,9 @@ package strava
 
 import (
 	"fmt"
-	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	"strings"
+
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 )
 
 type StravaClientInt interface {
@@ -52,7 +53,7 @@ func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) 
 	} else if streamType == "Altitude" {
 		types = append(types, stravalib.StreamTypes.Elevation)
 	}
-	stream, err := service.Get(activityId, types).Resolution("high").SeriesType("distance").Do()
+	stream, err := service.Get(activityId, types).Do()
 	if err != nil && strings.Contains(err.Error(), "Record Not Found") {
 		return nil, nil
 	} else if err == nil {

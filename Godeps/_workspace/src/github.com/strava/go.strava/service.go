@@ -102,8 +102,9 @@ func (client *Client) run(method, path string, params map[string]interface{}) ([
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	} else {
-		fmt.Printf("%s", basePath+path+"?"+values.Encode())
-		req, err = http.NewRequest(method, basePath+path+"?"+values.Encode(), nil)
+		queryPart, _ := url.QueryUnescape(values.Encode())
+		fmt.Printf("%s", basePath+path+"?"+queryPart)
+		req, err = http.NewRequest(method, basePath+path+"?"+queryPart, nil)
 		if err != nil {
 			return nil, err
 		}
