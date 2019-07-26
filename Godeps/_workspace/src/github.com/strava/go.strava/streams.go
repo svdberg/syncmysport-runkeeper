@@ -223,7 +223,7 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 		source = "segments"
 	case types.SegmentEffort:
 		source = "segment_efforts"
-	}
+	} //Routes are not supported yet
 
 	if source == "" {
 		return nil, errors.New("invalid stream parent type")
@@ -238,7 +238,10 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 		types += "," + string(c.types[i])
 	}
 
-	path := fmt.Sprintf("/%s/%d/streams/%s", source, c.id, types)
+	c.ops["keys"] = types
+	c.ops["key_by_type"] = "true"
+
+	path := fmt.Sprintf("/%s/%d/streams", source, c.id)
 	data, err := c.service.client.run("GET", path, c.ops)
 
 	if err != nil {
