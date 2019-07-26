@@ -18,7 +18,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.Distance = stravaActivity.Distance
 	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
 	loc, err := time.LoadLocation(stravaActivity.TimeZone)
-	if err != nil {
+	if err == nil {
 		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
 		_, offsetInSeconds := timeInTZ.Zone()
 		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
