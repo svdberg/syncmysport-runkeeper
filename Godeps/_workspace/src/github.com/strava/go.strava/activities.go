@@ -31,6 +31,7 @@ type ActivitySummary struct {
 
 	StartDate      time.Time `json:"start_date"`
 	StartDateLocal time.Time `json:"start_date_local"`
+	UtcOffset      int       `json:"utc_offset"`
 
 	TimeZone         string   `json:"time_zone"`
 	StartLocation    Location `json:"start_latlng"`
