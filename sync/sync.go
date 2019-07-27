@@ -72,6 +72,7 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	for i := 0; i < stvDetailedActivities.NumElements(); i++ {
 		log.Printf("Strava Activity: %s", stvDetailedActivities.Get(i))
 	}
+	//stvDetailedActivities should be in UTC
 
 	//get activities from runkeeper
 	segment = newrelic.Segment{}
@@ -90,6 +91,8 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		log.Printf("%s", err)
 	}
 	log.Printf("Got %d items from RunKeeper", rkActivities.NumElements())
+	// rkActivities are in UTC (or should be)
+
 	for i := 0; i < rkActivities.NumElements(); i++ {
 		log.Printf("Runkeeper Activity: %s", rkActivities.Get(i))
 	}
