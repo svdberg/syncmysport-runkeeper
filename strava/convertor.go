@@ -2,6 +2,7 @@ package strava
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
@@ -17,12 +18,16 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.Calories = stravaActivity.Calories
 	stvActivity.Distance = stravaActivity.Distance
 	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
-	loc, err := time.LoadLocation(stravaActivity.TimeZone)
+
+	//properly format TZ
+	startOfTz := strings.Index(stravaActivity.TimeZone, ")") + 2
+	tz := string(stravaActivity.TimeZone[startOfTz:])
+	loc, err := time.LoadLocation(tz)
 	if err == nil {
 		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
 		_, offsetInSeconds := timeInTZ.Zone()
 		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
-		log.Printf("Strava activity offset: %d, calculated offset: %d", stravaActivity.UtcOffset, stvActivity.UtcOffSet)
+		log.Printf("calculated offset: %d", offsetInSeconds)
 	} else {
 		log.Printf("Warning: reading location from strava Activity failed with: %e", err)
 	}
