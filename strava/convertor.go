@@ -20,8 +20,13 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
 
 	//properly format TZ
-	startOfTz := strings.Index(stravaActivity.TimeZone, ")") + 2
-	tz := string(stravaActivity.TimeZone[startOfTz:])
+	tz := stravaActivity.TimeZone
+	log.Printf("TZ: %s", tz)
+	startOfTz := strings.Index(stravaActivity.TimeZone, ")")
+	if startOfTz != -1 {
+		tz = string(stravaActivity.TimeZone[startOfTz:])
+	}
+
 	loc, err := time.LoadLocation(tz)
 	if err == nil {
 		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
