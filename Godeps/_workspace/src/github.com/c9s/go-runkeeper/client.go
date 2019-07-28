@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	timez "4d63.com/tz"
 	latlong "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bradfitz/latlong"
 )
 
@@ -203,7 +204,7 @@ func calculateLocationOfActivity(activity *FitnessActivity) *time.Location {
 	if len(activity.Path) > 0 {
 		latLong := activity.Path[0]
 		timeZone := latlong.LookupZoneName(latLong.Latitude, latLong.Longitude)
-		location, err := time.LoadLocation(timeZone)
+		location, err := timez.LoadLocation(timeZone)
 		if err != nil {
 			fmt.Printf("Error while getting location from activity for TZ: %e", err)
 			return time.UTC

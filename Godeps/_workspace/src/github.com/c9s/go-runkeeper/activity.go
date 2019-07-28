@@ -3,6 +3,8 @@ package runkeeper
 import (
 	"fmt"
 	"time"
+
+	timez "4d63.com/tz"
 )
 
 /*
@@ -186,7 +188,7 @@ type Time time.Time
 // Unmarshal "Tue, 1 Mar 2011 07:00:00"
 func (self *Time) UnmarshalJSON(data []byte) (err error) {
 	if len(data) > 1 && data[0] == '"' && data[len(data)-1] == '"' {
-		loc, _ := time.LoadLocation("UTC")
+		loc, _ := timez.LoadLocation("UTC")
 		t, err := time.ParseInLocation("Mon, _2 Jan 2006 15:04:05", string(data[1:len(data)-1]), loc)
 		if err != nil {
 			return err

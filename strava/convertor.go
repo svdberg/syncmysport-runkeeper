@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	timez "4d63.com/tz"
 	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
@@ -27,7 +28,7 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		tz = string(stravaActivity.TimeZone[startOfTz:])
 	}
 
-	loc, err := time.LoadLocation(tz)
+	loc, err := timez.LoadLocation(tz)
 	if err == nil {
 		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
 		_, offsetInSeconds := timeInTZ.Zone()
