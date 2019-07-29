@@ -162,7 +162,32 @@ func (a Activity) String() string {
 }
 
 func (a Activity) ConsideredEqual(otherActivity *Activity) bool {
-	startDelta := math.Abs(float64(a.StartTime - otherActivity.StartTime))
-	endDelta := math.Abs(float64((a.StartTime + otherActivity.Duration) - (otherActivity.StartTime + otherActivity.Duration)))
-	return startDelta < delta && endDelta < delta && a.Type == otherActivity.Type
+	startDelta, endDelta := calculateDeltas(a.StartTime, otherActivity.StartTime, a.Duration, otherActivity.Duration)
+	matches := startDelta < delta && endDelta < delta && a.Type == otherActivity.Type
+	if !matches {
+		//try with startTime in TZ of the other time
+		if a.UtcOffSet == 0 && otherActivity.UtcOffSet != 0 {
+			//try with TZ of otherActivity
+			targetLoc := time.FixedZone("deltaZone", otherActivity.UtcOffSet*60*60)
+			newStartTime := time.Unix(int64(a.StartTime), 0).In(targetLoc)
+			newStartDelta, newEndDelta := calculateDeltas(int(newStartTime.Unix()), otherActivity.StartTime, a.Duration, otherActivity.Duration)
+			return newStartDelta < delta && newEndDelta < delta && a.Type == otherActivity.Type
+		}
+		if otherActivity.UtcOffSet == 0 && a.UtcOffSet != 0 {
+			//try with TZ of otherActivity
+			targetLoc := time.FixedZone("deltaZone", a.UtcOffSet*60*60)
+			newStartTime := time.Unix(int64(otherActivity.StartTime), 0).In(targetLoc)
+			newStartDelta, newEndDelta := calculateDeltas(int(newStartTime.Unix()), otherActivity.StartTime, a.Duration, otherActivity.Duration)
+			return newStartDelta < delta && newEndDelta < delta && a.Type == otherActivity.Type
+		}
+		return false
+	} else {
+		return matches
+	}
+}
+
+func calculateDeltas(startTimeOne, startTimeTwo, durationOne, DurationTwo int) (float64, float64) {
+	startDelta := math.Abs(float64(startTimeOne - startTimeTwo))
+	endDelta := math.Abs(float64((startTimeOne + durationOne) - (startTimeTwo + DurationTwo)))
+	return startDelta, endDelta
 }
