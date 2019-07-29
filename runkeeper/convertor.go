@@ -72,6 +72,7 @@ func ConvertToRkActivity(activity *dm.Activity) *runkeeper.FitnessActivityNew {
 	//runkeeper times are in local timezones, so covert back to the local time
 	rkLocalLocation := time.FixedZone("rkZone", activity.UtcOffSet*60*60)
 	rkActivity.StartTime = runkeeper.Time(time.Unix(int64(activity.StartTime), 0).In(rkLocalLocation))
+	log.Printf("SMS time: %s, converted to RK time: %s for offset: %d", activity.StartTime, rkActivity.StartTime, activity.UtcOffSet)
 	rkActivity.Notes = activity.Name
 	rkActivity.TotalDistance = activity.Distance
 	rkActivity.AverageHeartRate = activity.AverageHeartRate
