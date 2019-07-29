@@ -18,8 +18,9 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 		returnActivity.Type = rkActivity.Type
 	}
 
-	//RK time is 'Local'
-	correctedTime := time.Time(rkActivity.StartTime).Add(time.Duration(rkActivity.UtcOffset) * time.Hour)
+	//RK time is 'Local', convert to UTC
+	sourceLocation := time.FixedZone("RKSourceLocation", rkActivity.UtcOffset*60*60)
+	correctedTime := time.Time(rkActivity.StartTime).In(sourceLocation)
 	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
 	returnActivity.StartTime = int(time.Time(correctedTime).Unix())
 	returnActivity.UtcOffSet = rkActivity.UtcOffset
@@ -34,7 +35,7 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	returnActivity.GPS = convertFromPath(rkActivity.Path)
 	returnActivity.HeartRate = convertFromHR(rkActivity.HeartRate)
 
-	log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
+	// log.Printf("INPUT: %s, OUTPUT: %s", rkActivity, returnActivity)
 	return returnActivity
 }
 
