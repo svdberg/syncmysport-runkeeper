@@ -56,15 +56,28 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	for _, actSummary := range activities {
 		//get Detailed Actv
 		detailedAct, _ := stvClient.GetSTVDetailedActivity(actSummary.Id)
+
 		//get associated Streams
 		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
 		if err != nil {
 			log.Printf("Error while retrieving time series from Strava: %s", err)
 			return 0, 0, err
 		}
-		locStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "GPS")
-		hrStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
-		altStream, _ := stvClient.GetSTVActivityStream(actSummary.Id, "Altitude")
+
+		//Optional streams
+		// var locStream, hrStream, altStream *stv.StreamSet
+		locStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "GPS")
+		if err != nil {
+			log.Printf("Error while reading lat/long for activity id %d: %e", actSummary.Id, err)
+		}
+		hrStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
+		if err != nil {
+			log.Printf("Error while reading Heartrate for activity id %d: %e", actSummary.Id, err)
+		}
+		altStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Altitude")
+		if err != nil {
+			log.Printf("Error while reading Altitude for activity id %d: %e", actSummary.Id, err)
+		}
 
 		stvDetailedActivities.Add(*stv.ConvertToActivity(detailedAct, timeStream, locStream, hrStream, altStream))
 	}
