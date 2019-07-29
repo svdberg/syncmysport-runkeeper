@@ -178,8 +178,11 @@ func (self *Client) GetFitnessActivity(activityUri string, userParams *Params) (
 
 	//Now that we know the activity, Calculate the TZ the activity was in, and change the StartTime to UTC,
 	//and store the UTC offset.
-	activitiesLocation := calculateLocationOfActivity(activity)
-	writeTimeOffsetFromUTC(activity, activitiesLocation)
+
+	if activity.UtcOffset == 0 {
+		activitiesLocation := calculateLocationOfActivity(activity)
+		writeTimeOffsetFromUTC(activity, activitiesLocation)
+	}
 	return activity, nil
 }
 
