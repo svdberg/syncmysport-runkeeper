@@ -2,10 +2,12 @@ package strava
 
 import (
 	"fmt"
-	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
-	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	"testing"
 	"time"
+
+	timez "4d63.com/tz"
+	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 
 func TestConvertor(t *testing.T) {
@@ -37,6 +39,36 @@ func TestConvertor(t *testing.T) {
 	if !activity.ConsideredEqual(resultActivity) {
 		t.Error("activity should match resultActivity")
 	}
+}
+
+func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
+	if a == b {
+		return
+	}
+	if len(message) == 0 {
+		message = fmt.Sprintf("%v != %v", a, b)
+	}
+	t.Fatal(message)
+}
+
+func TestTZOffsetCalculation(t *testing.T) {
+	inputTZ := "(GMT-05:00) America/New_York"
+	sampleActivity := stravalib.ActivityDetailed{}
+	sampleActivity.StartDate, _ = time.Parse(time.RFC822, "02 Jan 19 15:04 CET")
+	offset := getTZOffsetForLocation(inputTZ, sampleActivity.StartDate)
+	fmt.Printf("calculated TZ: %d", offset)
+	assertEqual(t, offset, -5, "Offset for New York should be -5 hours")
+}
+
+func TestTZLib(t *testing.T) {
+	tz := "America/New_York"
+	timezone, e := timez.LoadLocation(tz)
+	if e == nil {
+		fmt.Printf("%s", timezone)
+	} else {
+		t.Fatalf("Error while loading location: %e", e)
+	}
+
 }
 
 func TestGPSStreamConvertor(t *testing.T) {

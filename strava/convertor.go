@@ -1,6 +1,7 @@
 package strava
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -21,22 +22,8 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 	stvActivity.AverageHeartRate = int(stravaActivity.AverageHeartrate)
 
 	//properly format TZ
-	tz := stravaActivity.TimeZone
-	log.Printf("TZ: %s", tz)
-	startOfTz := strings.Index(stravaActivity.TimeZone, ")")
-	if startOfTz != -1 {
-		tz = string(stravaActivity.TimeZone[startOfTz:])
-	}
-
-	loc, err := timez.LoadLocation(tz)
-	if err == nil {
-		timeInTZ := time.Time(stravaActivity.StartDate).In(loc)
-		_, offsetInSeconds := timeInTZ.Zone()
-		stvActivity.UtcOffSet = offsetInSeconds / 60 / 60
-		log.Printf("calculated offset: %d", offsetInSeconds)
-	} else {
-		log.Printf("Warning: reading location from strava Activity failed with: %e", err)
-	}
+	timeOffset := getTZOffsetForLocation(stravaActivity.TimeZone, stravaActivity.StartDate)
+	stvActivity.UtcOffSet = timeOffset
 
 	if stravaActivity.Type.String() == "Run" {
 		stvActivity.Type = "Running"
@@ -56,6 +43,31 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 		stvActivity.HeartRate = convertHeartRateTrack(hrTrack, timeStream)
 	}
 	return stvActivity
+}
+
+func getTZOffsetForLocation(stravaTZ string, startTime time.Time) int {
+	log.Printf("TZ: %s", stravaTZ)
+	startOfTz := strings.Index(stravaTZ, ")")
+	if startOfTz != -1 {
+		stravaTZ = string(stravaTZ[(startOfTz + 1):])
+	}
+
+	trimmedTZ := strings.Trim(stravaTZ, " ")
+
+	fmt.Printf("!!!%s!!!!", trimmedTZ)
+
+	loc, err := timez.LoadLocation(trimmedTZ)
+
+	if err == nil {
+		timeInTZ := time.Time(startTime).In(loc)
+		_, offsetInSeconds := timeInTZ.Zone()
+		utcOffSet := offsetInSeconds / 60 / 60
+		log.Printf("calculated offset: %d", utcOffSet)
+		return utcOffSet
+	} else {
+		log.Printf("Warning: reading location from strava Activity failed with: %e", err)
+		return 0
+	}
 }
 
 func convertGPSTrack(sourceStream *stravalib.StreamSet, timeStream *stravalib.StreamSet, elevationStream *stravalib.StreamSet) []dm.GPS {
