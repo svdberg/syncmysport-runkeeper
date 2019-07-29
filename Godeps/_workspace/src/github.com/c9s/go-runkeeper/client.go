@@ -169,18 +169,18 @@ func (self *Client) GetFitnessActivity(activityUri string, userParams *Params) (
 	}
 	defer resp.Body.Close()
 
-	var activity = FitnessActivity{}
+	var activity = &FitnessActivity{}
 
 	// re-fill the details
-	if err := parseJsonResponse(resp, &activity); err != nil {
+	if err := parseJsonResponse(resp, activity); err != nil {
 		return nil, err
 	}
 
 	//Now that we know the activity, Calculate the TZ the activity was in, and change the StartTime to UTC,
 	//and store the UTC offset.
-	activitiesLocation := calculateLocationOfActivity(&activity)
-	writeTimeOffsetFromUTC(&activity, activitiesLocation)
-	return &activity, nil
+	activitiesLocation := calculateLocationOfActivity(activity)
+	writeTimeOffsetFromUTC(activity, activitiesLocation)
+	return activity, nil
 }
 
 func correctTimeForOffsetFromUTC(activity *FitnessActivity) {
