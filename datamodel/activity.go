@@ -168,13 +168,14 @@ func (a Activity) ConsideredEqual(otherActivity *Activity) bool {
 		//try with startTime in TZ of the other time
 		if a.UtcOffSet == 0 && otherActivity.UtcOffSet != 0 {
 			//try with TZ of otherActivity
-			targetLoc := time.FixedZone("deltaZone", otherActivity.UtcOffSet*60*60)
-			newStartTime := time.Unix(int64(a.StartTime), 0).In(targetLoc)
+			antiOffset := -1 * otherActivity.UtcOffSet*60*60
+			targetLoc := time.FixedZone("deltaZone", antiOffset)
+			newStartTime := time.Unix(int64(otherActivity.StartTime), 0).In(targetLoc)
 			newStartDelta, newEndDelta := calculateDeltas(int(newStartTime.Unix()), otherActivity.StartTime, a.Duration, otherActivity.Duration)
 			return newStartDelta < delta && newEndDelta < delta && a.Type == otherActivity.Type
 		}
 		if otherActivity.UtcOffSet == 0 && a.UtcOffSet != 0 {
-			//try with TZ of otherActivity
+			//try with TZ of a
 			targetLoc := time.FixedZone("deltaZone", a.UtcOffSet*60*60)
 			newStartTime := time.Unix(int64(otherActivity.StartTime), 0).In(targetLoc)
 			newStartDelta, newEndDelta := calculateDeltas(int(newStartTime.Unix()), otherActivity.StartTime, a.Duration, otherActivity.Duration)
