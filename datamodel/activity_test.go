@@ -85,7 +85,7 @@ func TestEqualsWithRKTimezones(t *testing.T) {
 	activityWithOutTZ.UtcOffSet = 0
 
 	if !activityWithTZ.ConsideredEqual(activityWithOutTZ) {
-		t.Errorf(" WithTZ -> WithOutTZ: %s was not equal to %s", activityWithTZ, activityWithOutTZ)
+		t.Errorf("WithTZ -> WithOutTZ: %s was not equal to %s", activityWithTZ, activityWithOutTZ)
 	}
 
 	if !activityWithOutTZ.ConsideredEqual(activityWithTZ) {

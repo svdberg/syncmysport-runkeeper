@@ -140,6 +140,7 @@ Valid params:
 func (self *Client) GetFitnessActivityFeed(userParams *Params) (*FitnessActivityFeed, error) {
 	params := self.GetRequestParams(userParams)
 	req, err := self.createBaseRequest("GET", "/fitnessActivities?"+params.Encode(), ContentTypeFitnessActivityFeed, nil)
+	fmt.Printf("RK request: %s", req)
 	if err != nil {
 		return nil, err
 	}
