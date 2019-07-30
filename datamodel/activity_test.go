@@ -73,6 +73,26 @@ func TestApproxSetDifference(t *testing.T) {
 	}
 }
 
+func TestEqualsWithRKTimezones(t *testing.T) {
+	activityWithTZ := CreateActivity()
+	timeWithTZ, _ := time.Parse(time.RFC822, "02 Jan 19 15:04 CET")
+	activityWithTZ.StartTime = int(timeWithTZ.Unix())
+	activityWithTZ.UtcOffSet = -5
+
+	activityWithOutTZ := CreateActivity()
+	timeWithoutTZ, _ := time.Parse(time.RFC822, "02 Jan 19 10:04 CET")
+	activityWithOutTZ.StartTime = int(timeWithoutTZ.Unix()) //this is "UTC"
+	activityWithOutTZ.UtcOffSet = 0
+
+	if !activityWithTZ.ConsideredEqual(activityWithOutTZ) {
+		t.Errorf(" WithTZ -> WithOutTZ: %s was not equal to %s", activityWithTZ, activityWithOutTZ)
+	}
+
+	if !activityWithOutTZ.ConsideredEqual(activityWithTZ) {
+		t.Errorf("WithOutTZ -> WithTZ -> %s was not equal to %s", activityWithOutTZ, activityWithTZ)
+	}
+}
+
 func TestSetDifference(t *testing.T) {
 	set1 := NewActivitySet()
 	activity1 := CreateActivity()
