@@ -23,9 +23,10 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	negativeOffset := -1 * rkActivity.UtcOffset * 60 * 60
 	// sourceLocation := time.FixedZone("RKSourceLocation", negativeOffset)
 	// correctedTime := time.Time(rkActivity.StartTime).In(sourceLocation)
-	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
-	returnActivity.StartTime = int(rkActivity.StartTime.Unix() + negativeOffset)
+	// log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
+	returnActivity.StartTime = int(time.Time(rkActivity.StartTime).Unix() + int64(negativeOffset))
 	returnActivity.UtcOffSet = rkActivity.UtcOffset
+	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), "NA", time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
 	returnActivity.Duration = int(rkActivity.Duration)
 	returnActivity.Name = rkActivity.Notes
 	returnActivity.Notes = rkActivity.Notes
