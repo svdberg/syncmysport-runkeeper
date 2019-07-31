@@ -63,6 +63,7 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 			log.Printf("Error while retrieving time series from Strava: %s", err)
 			return 0, 0, err
 		}
+		log.Printf("timeStream: %s", timeStream)
 
 		//Optional streams
 		// var locStream, hrStream, altStream *stv.StreamSet
@@ -70,10 +71,12 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		if err != nil {
 			log.Printf("Error while reading lat/long for activity id %d: %e", actSummary.Id, err)
 		}
+		log.Printf("locStream: %s", locStream)
 		hrStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Heartrate")
 		if err != nil {
 			log.Printf("Error while reading Heartrate for activity id %d: %e", actSummary.Id, err)
 		}
+
 		altStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Altitude")
 		if err != nil {
 			log.Printf("Error while reading Altitude for activity id %d: %e", actSummary.Id, err)
