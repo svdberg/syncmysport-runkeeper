@@ -92,6 +92,7 @@ func syncTaskJob(j *que.Job) error {
 			"total-items":      totalItems})
 	}
 
+	log.Infof("Executed synctask %d, now deleting it.", synctask.Uid)
 	return nil
 }
 
