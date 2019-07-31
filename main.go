@@ -12,8 +12,6 @@ import (
 	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
 )
 
-const tsDelta = -45 //minutes
-
 //CONFIG
 var (
 	DbConnectionString string
@@ -98,15 +96,6 @@ func startSync() {
 		err := queueSyncTask(syncer)
 		if err != nil {
 			log.Fatal("Error enqueuing job for sync: %s", err)
-		}
-
-		//We might need to move this to the SyncTask itself now that we run on workers.
-		log.Print("Updating last seen timestamp")
-		//subtract 45 minutes to prevent activites being missed
-		syncer.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())
-		rowsUpdated, err := repo.UpdateSyncTask(syncer)
-		if err != nil || rowsUpdated != 1 {
-			log.Fatal("Error updating the SyncTask record with a new timestamp")
 		}
 	}
 }

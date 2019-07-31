@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
@@ -23,6 +24,8 @@ var (
 	app     newrelic.Application
 )
 
+const tsDelta = -45 //minutes
+
 func init() {
 	key := os.Getenv("NEW_RELIC_KEY")
 	if key != "" {
@@ -37,6 +40,9 @@ func init() {
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
+	defer j.Delete()
+	defer j.Done()
+
 	var txn newrelic.Transaction
 	if app != nil {
 		txn = app.StartTransaction("sync-task", nil, nil)
@@ -64,16 +70,22 @@ func syncTaskJob(j *que.Job) error {
 			txn.NoticeError(err)
 		}
 		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
-		return err
+		return err //don't update Timestamp, so we will retry
 	}
+	//update last executed timestamp
+	log.Print("Updating last seen timestamp")
+	//subtract 45 minutes to prevent activites being missed
+	synctask.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())
+	rowsUpdated, err := repo.UpdateSyncTask(synctask)
+	if err != nil || rowsUpdated != 1 {
+		log.Fatal("Error updating the SyncTask record with a new timestamp")
+	}
+
 	if app != nil {
 		app.RecordCustomEvent("sync_items_created", map[string]interface{}{
 			"rk-items-created": itemsCreatedRk,
 			"total-items":      totalItems})
 	}
-
-	j.Delete()
-	j.Done()
 
 	return nil
 }
