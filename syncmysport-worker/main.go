@@ -81,7 +81,8 @@ func syncTaskJob(j *que.Job) error {
 	synctask.LastSeenTimestamp = int(time.Now().Add(time.Duration(tsDelta) * time.Minute).Unix())
 	rowsUpdated, err := repo.UpdateSyncTask(synctask)
 	if err != nil || rowsUpdated != 1 {
-		log.Fatal("Error updating the SyncTask record with a new timestamp")
+		log.Errorf("Error updating the SyncTask record with a new timestamp: %e", err)
+		return err
 	}
 
 	if app != nil {
