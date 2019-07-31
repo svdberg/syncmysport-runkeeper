@@ -146,6 +146,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 	defer stmtOut.Close()
+	defer dbCon.Close()
 
 	rows, err := stmtOut.Query()
 	defer rows.Close()
@@ -173,6 +174,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 
 func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
+	defer dbCon.Close()
 	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key = ? OR stv_key = ?")
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
