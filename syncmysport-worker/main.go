@@ -40,8 +40,9 @@ func init() {
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
-	DbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
-	repo := sync.CreateSyncDbRepo(DbConnectionString)
+	dbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
+	log.Infof("syntask connection string: %s", dbConnectionString)
+	repo := sync.CreateSyncDbRepo(dbConnectionString)
 
 	defer j.Delete()
 	defer j.Done()
