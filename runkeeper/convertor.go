@@ -19,7 +19,9 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	}
 
 	//RK time is 'Local', convert to UTC
-	sourceLocation := time.FixedZone("RKSourceLocation", rkActivity.UtcOffset*60*60)
+	//TODO. This might be wrong and perhaps should be the negative zone (e.g. -1 * ..)
+	negativeOffset := -1 * rkActivity.UtcOffset * 60 * 60
+	sourceLocation := time.FixedZone("RKSourceLocation", negativeOffset)
 	correctedTime := time.Time(rkActivity.StartTime).In(sourceLocation)
 	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
 	returnActivity.StartTime = int(time.Time(correctedTime).Unix())
