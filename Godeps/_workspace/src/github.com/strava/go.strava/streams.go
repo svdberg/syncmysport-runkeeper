@@ -219,7 +219,7 @@ func (c *streamsGetCall) Do() (*StreamSet, error) {
 	switch c.service.parentType {
 	case types.Activity:
 		source = "activities"
-		c.ops["key_by_type"] = "true"
+		c.ops["key_by_type"] = ""
 	case types.Segment:
 		source = "segments"
 	case types.SegmentEffort:
