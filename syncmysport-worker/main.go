@@ -84,6 +84,7 @@ func syncTaskJob(j *que.Job) error {
 	rowsUpdated, err := repo.UpdateSyncTask(synctask)
 	if err != nil || rowsUpdated != 1 {
 		log.Errorf("Error updating the SyncTask record with a new timestamp: %e", err)
+		j.Error(fmt.Sprintf("Error in synctask time update: %e", err))
 		return err
 	}
 
