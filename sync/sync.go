@@ -61,7 +61,7 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
 		if err != nil {
 			log.Printf("Error while retrieving time series from Strava: %s", err)
-			return 0, 0, err
+			//for some excercises there is no time stream even :/ So don't err on this
 		}
 
 		//Optional streams
