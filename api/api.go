@@ -90,7 +90,7 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 
 	runkeeperToken := auth.State //We pass the RK token in through the JS in the frontend
 	if task == nil && (runkeeperToken == "" || runkeeperToken == "undefined") {
-		syncTask := sync.CreateSyncTask("", "", -1, Environment)
+		syncTask := sync.CreateSyncTask("", "", "", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
 		syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 		_, _, _, err := db.StoreSyncTask(*syncTask)
@@ -202,7 +202,7 @@ func ObtainBearerToken(code string, stvToken string) (*sync.SyncTask, error) {
 			task, err = db.FindSyncTaskByToken(token)
 		}
 		if task == nil || err != nil {
-			syncTask := sync.CreateSyncTask("", "", -1, Environment)
+			syncTask := sync.CreateSyncTask("", "", "", "", -1, Environment)
 			syncTask.RunkeeperToken = token
 			syncTask.LastSeenTimestamp = nowMinusOneHourInUnix()
 			db.StoreSyncTask(*syncTask)
@@ -335,7 +335,7 @@ func TokenDisassociate(w http.ResponseWriter, r *http.Request) {
 
 func SyncTaskCreate(w http.ResponseWriter, r *http.Request) {
 	//TODO. Check if there already is a task with either of the keys
-	syncTask := sync.CreateSyncTask("", "", -1, Environment)
+	syncTask := sync.CreateSyncTask("", "", "", "", -1, Environment)
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
