@@ -40,9 +40,21 @@ var Permissions = struct {
 
 // AuthorizationResponse is returned as a result of the token exchange
 type AuthorizationResponse struct {
-	AccessToken string          `json:"access_token"`
-	State       string          `json:"State"`
-	Athlete     AthleteDetailed `json:"athlete"`
+	AccessToken  string          `json:"access_token"`
+	RefreshToken string          `json:"refresh_token"`
+	State        string          `json:"State"`
+	Athlete      AthleteDetailed `json:"athlete"`
+}
+
+//{
+//  "token_type": "Bearer",
+//  "access_token": "987654321234567898765432123456789",
+//  "refresh_token": "1234567898765432112345678987654321",
+//  "expires_at": 1531385304
+//}
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // CallbackPath returns the path portion of the CallbackURL.
@@ -180,10 +192,47 @@ type OAuthDeauthorizeCall struct {
 	service *OAuthService
 }
 
+type OAuthRefreshCall struct {
+	service       *OAuthService
+	refresh_token string
+}
+
 func (s *OAuthService) Deauthorize() *OAuthDeauthorizeCall {
 	return &OAuthDeauthorizeCall{
 		service: s,
 	}
+}
+
+func (s *OAuthService) RefreshToken(refresh_token string) *OAuthRefreshCall {
+	return &OAuthRefreshCall{
+		service:       s,
+		refresh_token: refresh_token,
+	}
+}
+
+func (c *OAuthRefreshCall) Do() (string, string, error) {
+	grant_type := "refresh_token"
+	ops := map[string]interface{}{
+		"client_id":     fmt.Sprintf("%d", ClientId),
+		"client_secret": ClientSecret,
+		"grant_type":    grant_type,
+		"refresh_token": c.refresh_token,
+	}
+
+	resp, err := c.service.client.run("POST", "/oauth/token", ops)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	var response RefreshTokenResponse
+	err = json.Unmarshal(resp, &response)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	return response.AccessToken, response.RefreshToken, nil
 }
 
 func (c *OAuthDeauthorizeCall) Do() error {

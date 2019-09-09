@@ -77,6 +77,7 @@ func ActiveUsersShow(response http.ResponseWriter, request *http.Request) {
 	response.Write([]byte(fmt.Sprintf("{\"active-users\" : %d }", userCount)))
 }
 
+// Strava oAuth handler. handles the response of a Success flow
 func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *http.Request) {
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	task, err := db.FindSyncTaskByToken(auth.AccessToken)
@@ -85,7 +86,9 @@ func oAuthSuccess(auth *strava.AuthorizationResponse, w http.ResponseWriter, r *
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	runkeeperToken := auth.State
+	//task can either already exist for Strava only, or for both Strava and Runkeeper
+
+	runkeeperToken := auth.State //We pass the RK token in through the JS in the frontend
 	if task == nil && (runkeeperToken == "" || runkeeperToken == "undefined") {
 		syncTask := sync.CreateSyncTask("", "", -1, Environment)
 		syncTask.StravaToken = auth.AccessToken
@@ -151,6 +154,7 @@ func oAuthFailure(err error, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, err)
 	}
 }
+
 func OAuthCallback(response http.ResponseWriter, request *http.Request) {
 	code := request.URL.Query().Get("code")
 	stvToken := request.URL.Query().Get("state")

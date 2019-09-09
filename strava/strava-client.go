@@ -12,6 +12,7 @@ type StravaClientInt interface {
 	GetSTVDetailedActivity(activityId int64) (*stravalib.ActivityDetailed, error)
 	GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error)
 	ValidateToken(token string) bool
+	RefreshToken(refresh_token string) (string, string, error)
 	DeAuthorize(token string) error
 }
 
@@ -25,6 +26,14 @@ type StravaClient struct {
 func CreateStravaClient(token string) StravaClientInt {
 	client := stravalib.NewClient(token)
 	return &StravaClient{token, client}
+}
+
+func (c StravaClient) RefreshToken(refresh_token string) (string, string, error) {
+	access_token, refresh_token, err := stravalib.NewOAuthService(c.Client).RefreshToken(refresh_token).Do()
+	if err != nil {
+		return "", "", err
+	}
+	return access_token, refresh_token, nil
 }
 
 func (c StravaClient) GetSTVActivitiesSince(timestamp int) ([]*stravalib.ActivitySummary, error) {
@@ -42,6 +51,7 @@ func (c StravaClient) GetSTVDetailedActivity(activityId int64) (*stravalib.Activ
 }
 
 func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) (*stravalib.StreamSet, error) {
+	//improve this so we collect all streams in one call
 	service := stravalib.NewActivityStreamsService(c.Client)
 	var types = make([]stravalib.StreamType, 1)
 	if streamType == "GPS" {
