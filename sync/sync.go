@@ -38,6 +38,11 @@ func CreateSyncTask(rkToken string, stvToken string, rkRefreshToken string, stvR
 	return &SyncTask{stvToken, stvRefreshToken, rkToken, rkRefreshToken, lastSeenTS, -1, environment}
 }
 
+func (st SyncTask) String() string {
+	return fmt.Sprintf("{ strava_token: \"%s\", strava_refresh: \"%s\", rk_token: \"%s\", last_seen: \"%s\"}",
+		st.StravaToken, st.StravaRefreshToken, st.RunkeeperToken, st.RunkeeperRefreshToken, st.LastSeenTimestamp)
+}
+
 /*
  * return the Total difference and the number of Activites created
  */

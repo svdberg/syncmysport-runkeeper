@@ -86,6 +86,10 @@ func (stv stubSTV) GetSTVActivityStream(activityId int64, streamType string) (*s
 	return nil, nil
 }
 
+func (stv stubSTV) RefreshToken() (string, string, error) {
+	return "new_ac_blah_blah", "new_rf_sdfsdfsdfsdfsd", nil
+}
+
 var stubStvImpl stubSTV
 
 /*
@@ -95,8 +99,9 @@ var stubStvImpl stubSTV
 func TestBasicSync(t *testing.T) {
 	rkToken := "abcdef"
 	stToken := "ghijkz"
+	stRefresh := "sdfsdfsd"
 	lastSeen := int(time.Now().Unix())
-	syncTask := CreateSyncTask(rkToken, stToken, lastSeen, "Prod")
+	syncTask := CreateSyncTask(rkToken, stRefresh, stToken, "", lastSeen, "Prod")
 	syncTask.Sync(stubStvImpl, stubRKImpl, nil)
 
 	expectedActivity := runkeeper.FitnessActivityNew{}
