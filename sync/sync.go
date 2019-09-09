@@ -39,7 +39,7 @@ func CreateSyncTask(rkToken string, stvToken string, rkRefreshToken string, stvR
 }
 
 func (st SyncTask) String() string {
-	return fmt.Sprintf("{ strava_token: \"%s\", strava_refresh: \"%s\", rk_token: \"%s\", last_seen: \"%s\"}",
+	return fmt.Sprintf("{ strava_token: \"%s\", strava_refresh: \"%s\", rk_token: \"%s\", last_seen: \"%d\"}",
 		st.StravaToken, st.StravaRefreshToken, st.RunkeeperToken, st.LastSeenTimestamp)
 }
 

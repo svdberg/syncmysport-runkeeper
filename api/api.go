@@ -55,7 +55,7 @@ func Start(connString string, port int, secretRk string, redirectRk string, secr
 	db := sync.CreateSyncDbRepo(DbConnectionString)
 	err := db.CreateTableIfNotExist()
 	if err != nil {
-		log.Fatal("Error checking or creating the Sync database table: %s", err)
+		log.Fatalf("Error checking or creating the Sync database table: %s", err.Error())
 	}
 
 	router := NewRouter()

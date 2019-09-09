@@ -40,7 +40,7 @@ func main() {
 			if i == 4 {
 				log.WithField("DATABASE_URL", dbURL).Fatal("Unable to setup queue / database")
 			} else {
-				log.Print("Waiting 1 second for retry. I = %d", i)
+				log.Printf("Waiting 1 second for retry. I = %d", i)
 				time.Sleep(1000 * time.Millisecond)
 				i++
 			}
@@ -80,7 +80,7 @@ func startSync() {
 	repo := sync.CreateSyncDbRepo(DbConnectionString)
 	err := repo.CreateTableIfNotExist()
 	if err != nil {
-		log.Fatal("Error checking or creating the Sync database table: %s", err)
+		log.Fatalf("Error checking or creating the Sync database table: %s", err)
 	}
 
 	allSyncs, err := repo.RetrieveAllSyncTasks()
@@ -95,7 +95,7 @@ func startSync() {
 		log.Printf("Now syncing for task: %s, %s, %s", syncer.StravaToken, syncer.RunkeeperToken, time.Unix(int64(syncer.LastSeenTimestamp), 0))
 		err := queueSyncTask(syncer)
 		if err != nil {
-			log.Fatal("Error enqueuing job for sync: %s", err)
+			log.Fatalf("Error enqueuing job for sync: %s", err)
 		}
 	}
 }

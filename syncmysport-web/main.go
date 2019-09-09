@@ -36,7 +36,7 @@ func main() {
 	}
 	port, nerr := strconv.Atoi(portString)
 	if nerr != nil {
-		log.Print("Error converting $PORT to an int: %q - Using default", err)
+		log.Printf("Error converting $PORT to an int: %q - Using default", err)
 		port = 8100
 	}
 	DbConnectionString = os.Getenv("CLEARDB_DATABASE_URL")
