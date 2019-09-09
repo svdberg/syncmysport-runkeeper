@@ -65,6 +65,21 @@ func syncTaskJob(j *que.Job) error {
 
 	stvClientImpl := stv.CreateStravaClient(synctask.StravaToken)
 	rkClientImpl := rk.CreateRKClient(synctask.RunkeeperToken)
+
+	//update the accesstoken if needed
+	log.WithField("SyncTask", synctask).Info("Updating access token using refresh token...")
+	if !stvClientImpl.ValidateToken(synctask.StravaToken) {
+		access_token, refresh_token, err := stvClientImpl.RefreshToken(synctask.StravaRefreshToken)
+		if err != nil {
+			log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while updating access token for strava.")
+			j.Error("Error in updating access token for strava")
+			return err
+		}
+		synctask.StravaToken = access_token
+		synctask.StravaRefreshToken = refresh_token
+		repo.UpdateSyncTask(synctask)
+	}
+
 	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl, txn)
 	if err != nil {
 		if app != nil {

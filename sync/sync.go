@@ -25,15 +25,17 @@ func CalculateRKDifference(rkActivities dm.ActivitySet, stvActivities dm.Activit
 }
 
 type SyncTask struct {
-	StravaToken       string `json:"stv_token"`
-	RunkeeperToken    string `json:"rk_token"`
-	LastSeenTimestamp int    `json:"last_seen_ts"`
-	Uid               int64  `json:"id"`
-	Environment       string `json:"environment"`
+	StravaToken           string `json:"stv_token"`
+	StravaRefreshToken    string `json:"stv_refresh_token"`
+	RunkeeperToken        string `json:"rk_token"`
+	RunkeeperRefreshToken string `json:"rk_refresh_token"`
+	LastSeenTimestamp     int    `json:"last_seen_ts"`
+	Uid                   int64  `json:"id"`
+	Environment           string `json:"environment"`
 }
 
-func CreateSyncTask(rkToken string, stvToken string, lastSeenTS int, environment string) *SyncTask {
-	return &SyncTask{stvToken, rkToken, lastSeenTS, -1, environment}
+func CreateSyncTask(rkToken string, stvToken string, rkRefreshToken string, stvRefreshToken string, lastSeenTS int, environment string) *SyncTask {
+	return &SyncTask{stvToken, stvRefreshToken, rkToken, rkRefreshToken, lastSeenTS, -1, environment}
 }
 
 /*

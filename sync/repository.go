@@ -49,9 +49,11 @@ func (db DbSync) CreateTableIfNotExist() error {
 	CREATE TABLE IF NOT EXISTS sync (
     uid INT(10) NOT NULL AUTO_INCREMENT,
     rk_key VARCHAR(64) NULL DEFAULT NULL,
+    rk_refresh_token VARCHAR(64) DEFAULT NULL,
     stv_key VARCHAR(64) NULL DEFAULT NULL,
+    stv_refresh_token VARCHAR(64) DEFAULT NULL,
     last_succesfull_retrieve DATETIME NULL DEFAULT NULL,
-		environment varchar(36) NOT NULL DEFAULT "Prod",
+	environment varchar(36) NOT NULL DEFAULT "Prod",
     PRIMARY KEY (uid)
   );`)
 	if err != nil {
@@ -88,13 +90,13 @@ func (db DbSync) UpdateSyncTask(sync SyncTask) (int, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
-	stmtOut, err := dbCon.Prepare("UPDATE sync SET rk_key=?, stv_key=?, last_succesfull_retrieve=? WHERE uid = ?")
+	stmtOut, err := dbCon.Prepare("UPDATE sync SET rk_key=?, stv_key=?, stv_refresh_token=?, last_succesfull_retrieve=? WHERE uid = ?")
 	if err != nil {
 		return 0, errors.New("Error preparing UPDATE statement for Task")
 	}
 	defer stmtOut.Close()
 
-	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
+	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, sync.StravaRefreshToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Uid)
 	if err != nil {
 		return 0, errors.New("Error executing the UPDATE statement for Task")
 	}
@@ -113,13 +115,13 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
 
-	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, last_succesfull_retrieve, environment) VALUES(?,?,?,?)")
+	stmtOut, err := dbCon.Prepare("INSERT INTO sync(rk_key, stv_key, stv_refresh_token, last_succesfull_retrieve, environment) VALUES(?,?,?,?)")
 	if err != nil {
 		log.Printf("err: %s", err)
 		return 0, 0, sync, err
 	}
 	defer stmtOut.Close()
-	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Environment)
+	res, err := stmtOut.Exec(sync.RunkeeperToken, sync.StravaToken, sync.StravaRefreshToken, createStringOutOfUnixTime(sync.LastSeenTimestamp), sync.Environment)
 	if err != nil {
 		log.Printf("err: %s", err)
 		return 0, 0, sync, err
@@ -155,17 +157,19 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 	for rows.Next() {
 		var rkToken string
 		var stvToken string
+		var rkRefreshToken string
+		var stvRefreshToken string
 		var uid int64
 		var lastSeenTime string
 		var environment string
 
-		rows.Scan(&uid, &rkToken, &stvToken, &lastSeenTime, &environment)
+		rows.Scan(&uid, &rkToken, &stvToken, &lastSeenTime, &environment, &stvRefreshToken, &rkRefreshToken)
 		unixTime, err := createUnixTimeOutOfString(lastSeenTime)
 		if err != nil {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
 
-		sync := CreateSyncTask(rkToken, stvToken, unixTime, environment)
+		sync := CreateSyncTask(rkToken, rkRefreshToken, stvToken, stvRefreshToken, unixTime, environment)
 		sync.Uid = uid
 		result = append(result, *sync)
 	}
@@ -175,13 +179,13 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
 	defer dbCon.Close()
-	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key = ? OR stv_key = ?")
+	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key = ? OR stv_key = ? OR stv_refresh_token = ?")
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 	defer stmtOut.Close()
 
-	rows, err := stmtOut.Query(token, token)
+	rows, err := stmtOut.Query(token, token, token)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -190,8 +194,10 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 		var stvToken string
 		var lastSeen string
 		var environment string
+		var stv_refresh_token string
+		var rk_refresh_token string
 
-		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen, &environment)
+		err = rows.Scan(&uid, &rkToken, &stvToken, &lastSeen, &environment, &stv_refresh_token, &rk_refresh_token)
 		if err != nil {
 			log.Printf("Error while getting results from db for token %s", token)
 			return nil, err
@@ -201,7 +207,7 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 			log.Printf("Error while converting timestamp from db %s", lastSeen)
 			return nil, err
 		}
-		task := CreateSyncTask(rkToken, stvToken, unixTime, environment)
+		task := CreateSyncTask(rkToken, rk_refresh_token, stvToken, stv_refresh_token, unixTime, environment)
 		task.Uid = uid
 		return task, nil
 	}
