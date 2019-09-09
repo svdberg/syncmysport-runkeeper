@@ -86,7 +86,7 @@ func (stv stubSTV) GetSTVActivityStream(activityId int64, streamType string) (*s
 	return nil, nil
 }
 
-func (stv stubSTV) RefreshToken() (string, string, error) {
+func (stv stubSTV) RefreshToken(input string) (string, string, error) {
 	return "new_ac_blah_blah", "new_rf_sdfsdfsdfsdfsd", nil
 }
 
