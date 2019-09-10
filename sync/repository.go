@@ -50,10 +50,10 @@ func (db DbSync) CreateTableIfNotExist() error {
     uid INT(10) NOT NULL AUTO_INCREMENT,
     rk_key VARCHAR(64) NULL DEFAULT NULL,
     rk_refresh_token VARCHAR(64) DEFAULT NULL,
-    stv_key VARCHAR(64) NULL DEFAULT NULL,
-    stv_refresh_token VARCHAR(64) DEFAULT NULL,
     last_succesfull_retrieve DATETIME NULL DEFAULT NULL,
 	environment varchar(36) NOT NULL DEFAULT "Prod",
+	stv_key VARCHAR(64) NULL DEFAULT NULL,
+    stv_refresh_token VARCHAR(64) DEFAULT NULL,
     PRIMARY KEY (uid)
   );`)
 	if err != nil {
