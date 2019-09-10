@@ -25,7 +25,6 @@ func ConvertToActivity(rkActivity *runkeeper.FitnessActivity) *dm.Activity {
 	// log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), correctedTime, time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
 	returnActivity.StartTime = int(time.Time(rkActivity.StartTime).Unix() + int64(negativeOffset))
 	returnActivity.UtcOffSet = rkActivity.UtcOffset
-	log.Printf("RK Local date: %s, start date: %s, unix: %d, offset: %d", time.Time(rkActivity.StartTime), "NA", time.Time(rkActivity.StartTime).Unix(), rkActivity.UtcOffset)
 	returnActivity.Duration = int(rkActivity.Duration)
 	returnActivity.Name = rkActivity.Notes
 	returnActivity.Notes = rkActivity.Notes
@@ -75,7 +74,6 @@ func ConvertToRkActivity(activity *dm.Activity) *runkeeper.FitnessActivityNew {
 	//runkeeper times are in local timezones, so covert back to the local time
 	rkLocalLocation := time.FixedZone("rkZone", activity.UtcOffSet*60*60)
 	rkActivity.StartTime = runkeeper.Time(time.Unix(int64(activity.StartTime), 0).In(rkLocalLocation))
-	log.Printf("SMS time: %s, converted to RK time: %s for offset: %d", activity.StartTime, rkActivity.StartTime, activity.UtcOffSet)
 	rkActivity.Notes = activity.Name
 	rkActivity.TotalDistance = activity.Distance
 	rkActivity.AverageHeartRate = activity.AverageHeartRate
