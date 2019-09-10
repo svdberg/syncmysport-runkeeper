@@ -83,8 +83,8 @@ func (c StravaClient) GetSTVActivityStream(activityId int64, streamType string) 
 func (c StravaClient) ValidateToken(token string) bool {
 	//create a new client to validate this token
 	verifyClient := stravalib.NewClient(token)
-	service := stravalib.NewAthletesService(verifyClient)
-	_, err := service.Get(1304613).Do() //hey, thats me!
+	service := stravalib.NewCurrentAthleteService(verifyClient)
+	_, err := service.Get().Do()
 	if err != nil {
 		return false
 	}
