@@ -143,7 +143,8 @@ func (db DbSync) StoreSyncTask(sync SyncTask) (int64, int64, SyncTask, error) {
 func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 	log.Printf("Connecting to DB using conn string %s", db.ConnectionString)
 	dbCon, _ := sql.Open("mysql", db.ConnectionString)
-	stmtOut, err := dbCon.Prepare("SELECT * FROM sync WHERE rk_key != '' AND stv_key != ''")
+	stmtOut, err :=
+		dbCon.Prepare("SELECT uid, rk_key, stv_key, last_succesfull_retrieve, environment, stv_refresh_token, rk_refresh_token FROM sync WHERE rk_key != '' AND stv_key != ''")
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
