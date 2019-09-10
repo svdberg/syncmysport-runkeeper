@@ -28,6 +28,13 @@ func CreateStravaClient(token string) StravaClientInt {
 	return &StravaClient{token, client}
 }
 
+func CreateStravaClientWithSecretAndId(token string, clientId int, secret string) StravaClientInt {
+	stravalib.ClientSecret = secret
+	stravalib.ClientId = clientId
+	client := stravalib.NewClient(token)
+	return &StravaClient{token, client}
+}
+
 func (c StravaClient) RefreshToken(refresh_token string) (string, string, error) {
 	access_token, refresh_token, err := stravalib.NewOAuthService(c.Client).RefreshToken(refresh_token).Do()
 	if err != nil {

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	// strava "github.com/strava/go.strava"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
 
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"github.com/svdberg/syncmysport-runkeeper/sync"
@@ -36,12 +35,9 @@ func main() {
 		log.Fatalf("Error retrieving the sync tasks from db, aborting. %v", err)
 	}
 
-	strava.ClientId = 9667
-	strava.ClientSecret = os.Getenv("STRAVA_SECRET")
-
 	for _, sync := range allSyncs {
 		//exchange the token for a short lived one and update the sync task in the repo
-		client := stv.CreateStravaClient(sync.StravaToken)
+		client := stv.CreateStravaClientWithSecretAndId(sync.StravaToken, 9667, os.Getenv("STRAVA_SECRET"))
 
 		accessToken, refreshToken, err := client.RefreshToken(sync.StravaToken) //one time exchange, only works during migration period
 		if err != nil {
