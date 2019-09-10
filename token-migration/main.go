@@ -4,7 +4,9 @@ import (
 	"log"
 	"os"
 
-	strava "github.com/strava/go.strava"
+	// strava "github.com/strava/go.strava"
+	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	"github.com/svdberg/syncmysport-runkeeper/sync"
 )
