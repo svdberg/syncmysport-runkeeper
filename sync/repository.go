@@ -171,7 +171,7 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 			return result, err // proper error handling instead of panic in your app
 		}
 
-		sync := CreateSyncTask(rkToken, rkRefreshToken, stvToken, stvRefreshToken, unixTime, environment)
+		sync := CreateSyncTask(rkToken, stvToken, rkRefreshToken, stvRefreshToken, unixTime, environment)
 		sync.Uid = uid
 		result = append(result, *sync)
 	}
@@ -209,7 +209,7 @@ func (db DbSync) FindSyncTaskByToken(token string) (*SyncTask, error) {
 			log.Printf("Error while converting timestamp from db %s", lastSeen)
 			return nil, err
 		}
-		task := CreateSyncTask(rkToken, rk_refresh_token, stvToken, stv_refresh_token, unixTime, environment)
+		task := CreateSyncTask(rkToken, stvToken, rk_refresh_token, stv_refresh_token, unixTime, environment)
 		task.Uid = uid
 		return task, nil
 	}
