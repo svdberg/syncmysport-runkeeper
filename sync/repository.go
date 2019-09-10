@@ -166,7 +166,8 @@ func (db DbSync) RetrieveAllSyncTasks() ([]SyncTask, error) {
 		rows.Scan(&uid, &rkToken, &stvToken, &lastSeenTime, &environment, &stvRefreshToken, &rkRefreshToken)
 		unixTime, err := createUnixTimeOutOfString(lastSeenTime)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			log.Printf("Error while loading Sync tasks from database: %s", err)
+			return result, err // proper error handling instead of panic in your app
 		}
 
 		sync := CreateSyncTask(rkToken, rkRefreshToken, stvToken, stvRefreshToken, unixTime, environment)
