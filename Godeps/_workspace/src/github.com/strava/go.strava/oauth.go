@@ -219,6 +219,8 @@ func (c *OAuthRefreshCall) Do() (string, string, error) {
 		"refresh_token": c.refresh_token,
 	}
 
+	fmt.Sprintf("Ops: %s", ops)
+
 	resp, err := c.service.client.run("POST", "/oauth/token", ops)
 
 	if err != nil {
