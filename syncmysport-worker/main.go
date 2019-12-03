@@ -45,8 +45,6 @@ func syncTaskJob(j *que.Job) error {
 	log.Infof("syntask connection string: %s", dbConnectionString)
 	repo := sync.CreateSyncDbRepo(dbConnectionString)
 
-	defer j.Done()
-
 	var txn newrelic.Transaction
 	if app != nil {
 		txn = app.StartTransaction("sync-task", nil, nil)
@@ -89,7 +87,6 @@ func syncTaskJob(j *que.Job) error {
 			txn.NoticeError(err)
 		}
 		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
-		j.Error(fmt.Sprintf("Error in synctask: %e", err))
 		return err //don't update Timestamp, so we will retry
 	}
 	//update last executed timestamp
@@ -99,7 +96,6 @@ func syncTaskJob(j *que.Job) error {
 	rowsUpdated, err := repo.UpdateSyncTask(synctask)
 	if err != nil || rowsUpdated != 1 {
 		log.Errorf("Error updating the SyncTask record with a new timestamp: %e", err)
-		j.Error(fmt.Sprintf("Error in synctask time update: %e", err))
 		return err
 	}
 
@@ -110,7 +106,6 @@ func syncTaskJob(j *que.Job) error {
 	}
 
 	log.Infof("Executed synctask %d, now deleting it.", synctask.Uid)
-	j.Delete()
 	return nil
 }
 
