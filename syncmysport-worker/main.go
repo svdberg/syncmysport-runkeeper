@@ -69,7 +69,6 @@ func syncTaskJob(j *que.Job) error {
 		access_token, refresh_token, err := stvClientImpl.RefreshToken(synctask.StravaRefreshToken)
 		if err != nil {
 			log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while updating access token for strava.")
-			j.Error("Error in updating access token for strava")
 			return err
 		}
 		synctask.StravaToken = access_token
