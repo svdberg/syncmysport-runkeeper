@@ -40,3 +40,5 @@ Website
 This application is available at [www.syncmysport.com](http://www.syncmysport.com/)
 
 YMV...
+
+Good luck!
