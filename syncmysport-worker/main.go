@@ -74,6 +74,8 @@ func syncTaskJob(j *que.Job) error {
 		synctask.StravaToken = access_token
 		synctask.StravaRefreshToken = refresh_token
 		repo.UpdateSyncTask(synctask)
+		//re-create the client, so we use the new tokens..
+		stvClientImpl = stv.CreateStravaClientWithSecretAndId(access_token, 9667, os.Getenv("STRAVA_SECRET"))
 	}
 
 	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl, txn)
