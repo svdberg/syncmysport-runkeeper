@@ -14,7 +14,6 @@ import (
 func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *stravalib.StreamSet, gpsTrack *stravalib.StreamSet, hrTrack *stravalib.StreamSet, altTrack *stravalib.StreamSet) *dm.Activity {
 	stvActivity := dm.CreateActivity()
 	stvActivity.StartTime = int(stravaActivity.StartDate.Unix()) //UTC date
-	log.Printf("STV Local date: %s, start date: %s, unix: %d", stravaActivity.StartDateLocal, stravaActivity.StartDate, stravaActivity.StartDate.Unix())
 	stvActivity.Duration = stravaActivity.ElapsedTime
 	stvActivity.Name = stravaActivity.Name
 	stvActivity.Calories = stravaActivity.Calories
@@ -46,23 +45,18 @@ func ConvertToActivity(stravaActivity *stravalib.ActivityDetailed, timeStream *s
 }
 
 func getTZOffsetForLocation(stravaTZ string, startTime time.Time) int {
-	log.Printf("TZ: %s", stravaTZ)
 	startOfTz := strings.Index(stravaTZ, ")")
 	if startOfTz != -1 {
 		stravaTZ = string(stravaTZ[(startOfTz + 1):])
 	}
 
 	trimmedTZ := strings.Trim(stravaTZ, " ")
-
-	fmt.Printf("!!!%s!!!!", trimmedTZ)
-
 	loc, err := timez.LoadLocation(trimmedTZ)
 
 	if err == nil {
 		timeInTZ := time.Time(startTime).In(loc)
 		_, offsetInSeconds := timeInTZ.Zone()
 		utcOffSet := offsetInSeconds / 60 / 60
-		log.Printf("calculated offset: %d", utcOffSet)
 		return utcOffSet
 	} else {
 		log.Printf("Warning: reading location from strava Activity failed with: %e", err)

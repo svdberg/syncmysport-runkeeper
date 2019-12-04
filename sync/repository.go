@@ -31,7 +31,6 @@ func CreateSyncDbRepo(dbString string) DbSyncInt {
 	if dbString != "" {
 		dbString = makeDbStringHerokuCompliant(dbString)
 		appendedConnectionString := fmt.Sprintf("%s", dbString)
-		log.Printf("Connection string was: %s, now is %s", dbString, appendedConnectionString)
 		return &DbSync{appendedConnectionString}
 	} else {
 		return &DbSync{default_connection_string}

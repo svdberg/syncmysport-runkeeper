@@ -41,7 +41,7 @@ func init() {
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
 	dbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
-	log.Infof("syntask connection string: %s", dbConnectionString)
+	log.Debugf("syntask connection string: %s", dbConnectionString)
 	repo := sync.CreateSyncDbRepo(dbConnectionString)
 
 	var txn newrelic.Transaction
