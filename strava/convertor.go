@@ -1,7 +1,6 @@
 package strava
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
