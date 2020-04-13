@@ -6,7 +6,7 @@ import (
 	"time"
 
 	timez "4d63.com/tz"
-	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	stravalib "github.com/svdberg/go.strava"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 

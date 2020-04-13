@@ -7,15 +7,15 @@ import (
 	"syscall"
 	"time"
 
-	newrelic "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
+	newrelic "github.com/newrelic/go-agent"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
 
-	log "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bgentry/que-go"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/jackc/pgx"
+	log "github.com/Sirupsen/logrus"
+	"github.com/bgentry/que-go"
+	"github.com/jackc/pgx"
 )
 
 var (
@@ -74,16 +74,16 @@ func syncTaskJob(j *que.Job) error {
 	//update the accesstoken if needed
 	if !stvClientImpl.ValidateToken(synctask.StravaToken) {
 		log.WithField("SyncTask", synctask).Info("Updating access token using refresh token...")
-		access_token, refresh_token, err := stvClientImpl.RefreshToken(synctask.StravaRefreshToken)
+		accessToken, refreshToken, err := stvClientImpl.RefreshToken(synctask.StravaRefreshToken)
 		if err != nil {
 			log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while updating access token for strava.")
 			return err
 		}
-		synctask.StravaToken = access_token
-		synctask.StravaRefreshToken = refresh_token
+		synctask.StravaToken = accessToken
+		synctask.StravaRefreshToken = refreshToken
 		repo.UpdateSyncTask(synctask)
 		//re-create the client, so we use the new tokens..
-		stvClientImpl = stv.CreateStravaClientWithSecretAndId(access_token, 9667, os.Getenv("STRAVA_SECRET"))
+		stvClientImpl = stv.CreateStravaClientWithSecretAndId(accessToken, 9667, os.Getenv("STRAVA_SECRET"))
 	}
 
 	itemsCreatedRk, totalItems, err := synctask.Sync(stvClientImpl, rkClientImpl, txn)

@@ -1,7 +1,7 @@
 package runkeeper
 
 import (
-	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	runkeeper "github.com/svdberg/go-runkeeper"
 	"log"
 	"time"
 )

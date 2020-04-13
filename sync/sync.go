@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
+	"github.com/newrelic/go-agent"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"

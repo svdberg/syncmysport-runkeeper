@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	stravalib "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/strava/go.strava"
+	stravalib "github.com/svdberg/go.strava"
 )
 
 type StravaClientInt interface {
