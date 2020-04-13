@@ -44,7 +44,7 @@ func syncTaskJob(j *que.Job) error {
 
 	//don't retry forever, this will only increase the database size and not solve anything
 	if j.ErrorCount > maxRetriesForJob {
-		log.WithField("jobId", string(j.ID)).WithField("errorCount", string(j.ErrorCount)).WithField("lastError", j.LastError).Error("Ignoring job because of too high error count.")
+		log.WithField("jobId", j.ID).WithField("errorCount", j.ErrorCount).WithField("lastError", j.LastError.String).Error("Ignoring job because of too high error count.")
 		return nil //signal job completed, even though we did nothing
 	}
 
