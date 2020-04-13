@@ -1,8 +1,8 @@
 package syncmysport
 
 import (
-	que "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bgentry/que-go"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/jackc/pgx"
+	que "github.com/bgentry/que-go"
+	"github.com/jackc/pgx"
 )
 
 const (

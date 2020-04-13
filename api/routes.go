@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
 type Route struct {

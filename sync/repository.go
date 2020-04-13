@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 //should come from config (file) somewhere...

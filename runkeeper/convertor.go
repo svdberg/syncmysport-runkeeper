@@ -3,7 +3,7 @@ package runkeeper
 import (
 	"time"
 
-	runkeeper "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/c9s/go-runkeeper"
+	runkeeper "github.com/c9s/go-runkeeper"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 )
 

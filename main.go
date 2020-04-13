@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	log "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	que "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/bgentry/que-go"
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/jackc/pgx"
+	log "github.com/Sirupsen/logrus"
+	que "github.com/bgentry/que-go"
+	"github.com/jackc/pgx"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
 	shared "github.com/svdberg/syncmysport-runkeeper/syncmysport-shared"
 )
