@@ -6,7 +6,6 @@ require (
 	4d63.com/tz v1.1.0
 	github.com/Sirupsen/logrus v0.8.8-0.20160119000032-f7f79f729e0f
 	github.com/bgentry/que-go v0.0.0-20150403043138-f18340e98b6a
-	github.com/c9s/go-runkeeper v0.0.0-20140317121255-9cbf0ab2d46d
 	github.com/go-sql-driver/mysql v1.2.1-0.20160120145418-acb04ffadecc
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
@@ -16,8 +15,8 @@ require (
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/newrelic/go-agent v1.7.0
 	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc // indirect
-	github.com/strava/go.strava v0.0.0-20160123225943-f5c7cee1038b
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/svdberg/go-runkeeper v0.0.0-20200413143828-5fea0e7b7678
+	github.com/svdberg/go.strava v0.0.0-20200413145208-8ddc0c15275f
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1 // indirect
 )

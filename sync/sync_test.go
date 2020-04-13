@@ -6,7 +6,7 @@ import (
 	"time"
 
 	runkeeper "github.com/svdberg/go-runkeeper"
-	stravalib "github.com/strava/go.strava"
+	stravalib "github.com/svdberg/go.strava"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	stravalib "github.com/strava/go.strava"
+	stravalib "github.com/svdberg/go.strava"
 )
 
 type StravaClientInt interface {

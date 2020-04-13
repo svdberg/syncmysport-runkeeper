@@ -11,7 +11,7 @@ import (
 	"time"
 
 	mux "github.com/gorilla/mux"
-	strava "github.com/strava/go.strava"
+	strava "github.com/svdberg/go.strava"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
