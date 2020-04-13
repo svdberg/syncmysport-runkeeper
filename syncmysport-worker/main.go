@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
+	newrelic "github.com/svdberg/syncmysport-runkeeper/Godeps/_workspace/src/github.com/newrelic/go-agent"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
 	sync "github.com/svdberg/syncmysport-runkeeper/sync"
@@ -25,6 +25,7 @@ var (
 )
 
 const tsDelta = -45 //minutes
+const maxRetriesForJob = 2
 
 func init() {
 	key := os.Getenv("NEW_RELIC_KEY")
@@ -40,6 +41,13 @@ func init() {
 
 // syncTaskJob would do whatever syncing is necessary in the background
 func syncTaskJob(j *que.Job) error {
+
+	//don't retry forever, this will only increase the database size and not solve anything
+	if j.ErrorCount > maxRetriesForJob {
+		log.WithField("jobId", string(j.ID)).WithField("errorCount", string(j.ErrorCount)).WithField("lastError", j.LastError).Error("Ignoring job because of too high error count.")
+		return nil //signal job completed, even though we did nothing
+	}
+
 	dbConnectionString := os.Getenv("CLEARDB_DATABASE_URL")
 	log.Debugf("syntask connection string: %s", dbConnectionString)
 	repo := sync.CreateSyncDbRepo(dbConnectionString)
@@ -89,6 +97,7 @@ func syncTaskJob(j *que.Job) error {
 		log.WithField("args", string(j.Args)).WithField("QueId", j.ID).Error("Error while syncing synctask.")
 		return err //don't update Timestamp, so we will retry
 	}
+
 	//update last executed timestamp
 	log.Print("Updating last seen timestamp")
 	//subtract 45 minutes to prevent activites being missed
