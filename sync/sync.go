@@ -102,8 +102,10 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	rkActivitiesOverview, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
 	rkDetailActivities, err := rkClient.EnrichRKActivities(rkActivitiesOverview)
 	//if anything went wrong with the runkeeper calls, we abort.
-	log.Printf("Error while reading Runkeeper activities: aborting run")
-	return -1, 0, err
+	if err != nil {
+		log.Printf("Error while reading Runkeeper activities: aborting run")
+		return -1, 0, err
+	}
 	segment.End()
 	//log.Printf("rk detail activities: %s", rkDetailActivities)
 

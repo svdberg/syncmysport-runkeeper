@@ -37,8 +37,8 @@ func (rk stubRK) PostActivity(activity *runkeeper.FitnessActivityNew) (string, e
 func (rk stubRK) EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error) {
 	return nil, nil
 }
-func (rk stubRK) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity {
-	return make([]runkeeper.FitnessActivity, 0)
+func (rk stubRK) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) ([]runkeeper.FitnessActivity, error) {
+	return make([]runkeeper.FitnessActivity, 0), nil
 }
 func (rk stubRK) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error) {
 	emptyFeed := &runkeeper.FitnessActivityFeed{0, make([]runkeeper.FitnessActivity, 0), ""}
