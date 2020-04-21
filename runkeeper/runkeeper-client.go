@@ -1,15 +1,17 @@
 package runkeeper
 
 import (
-	runkeeper "github.com/svdberg/go-runkeeper"
+	"fmt"
 	"log"
 	"time"
+
+	runkeeper "github.com/svdberg/go-runkeeper"
 )
 
 type RunkeeperCientInt interface {
 	PostActivity(activity *runkeeper.FitnessActivityNew) (string, error)
 	EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (*runkeeper.FitnessActivity, error)
-	EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity
+	EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) ([]runkeeper.FitnessActivity, error)
 	GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error)
 	ValidateToken(token string) bool
 	DeAuthorize(token string) error
@@ -35,13 +37,20 @@ func (c RkClient) EnrichRKActivity(activitySummary *runkeeper.FitnessActivity) (
 	return c.Client.GetFitnessActivity(activitySummary.Uri, &params)
 }
 
-func (c RkClient) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) []runkeeper.FitnessActivity {
+//EnrichRKActivities Set the lat long for any activities we downloaded
+func (c RkClient) EnrichRKActivities(activities *runkeeper.FitnessActivityFeed) ([]runkeeper.FitnessActivity, error) {
+	if activities == nil {
+		return nil, fmt.Errorf("passed in activities struct is nil")
+	}
 	result := make([]runkeeper.FitnessActivity, activities.Size)
 	for i, act := range activities.Items {
-		a, _ := c.EnrichRKActivity(&act)
+		a, err := c.EnrichRKActivity(&act)
+		if err != nil {
+			return nil, fmt.Errorf("nil activity requested for enrichemnt")
+		}
 		result[i] = *a
 	}
-	return result
+	return result, nil
 }
 
 func (c RkClient) GetRKActivitiesSince(timestamp int) (*runkeeper.FitnessActivityFeed, error) {

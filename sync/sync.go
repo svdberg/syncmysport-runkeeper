@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/newrelic/go-agent"
+	newrelic "github.com/newrelic/go-agent"
 	dm "github.com/svdberg/syncmysport-runkeeper/datamodel"
 	rk "github.com/svdberg/syncmysport-runkeeper/runkeeper"
 	stv "github.com/svdberg/syncmysport-runkeeper/strava"
@@ -100,7 +100,10 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	segment.Name = "runkeeper-retrieve-activities"
 	segment.StartTime = newrelic.StartSegmentNow(txn)
 	rkActivitiesOverview, err := rkClient.GetRKActivitiesSince(st.LastSeenTimestamp)
-	rkDetailActivities := rkClient.EnrichRKActivities(rkActivitiesOverview)
+	rkDetailActivities, err := rkClient.EnrichRKActivities(rkActivitiesOverview)
+	//if anything went wrong with the runkeeper calls, we abort.
+	log.Printf("Error while reading Runkeeper activities: aborting run")
+	return -1, 0, err
 	segment.End()
 	//log.Printf("rk detail activities: %s", rkDetailActivities)
 
