@@ -62,7 +62,11 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 	stvDetailedActivities := dm.NewActivitySet()
 	for _, actSummary := range activities {
 		//get Detailed Actv
-		detailedAct, _ := stvClient.GetSTVDetailedActivity(actSummary.Id)
+		detailedAct, err := stvClient.GetSTVDetailedActivity(actSummary.Id)
+		if err != nil {
+			log.Printf("Error getting detailed activity from strava: %e", err)
+			return 0, 0, err
+		}
 
 		//get associated Streams
 		timeStream, err := stvClient.GetSTVActivityStream(actSummary.Id, "Time")
