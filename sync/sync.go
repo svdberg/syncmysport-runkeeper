@@ -59,6 +59,10 @@ func (st SyncTask) Sync(stvClient stv.StravaClientInt, rkClient rk.RunkeeperCien
 		log.Printf("Error: %e while retrieving Strava activitites since %s, aborting this run", err, time.Unix(int64(st.LastSeenTimestamp), 0))
 		return 0, 0, err
 	}
+	if len(activities) == 0 {
+		log.Print("Got 0 activities from Strava, ending this sync task")
+		return 0, 0, nil
+	}
 	stvDetailedActivities := dm.NewActivitySet()
 	for _, actSummary := range activities {
 		//get Detailed Actv
